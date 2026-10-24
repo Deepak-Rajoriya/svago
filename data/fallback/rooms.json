@@ -20,6 +20,46 @@
       ],
       "images": [
         "/wp-content/uploads/rooms/jazz-1.jpg"
+      ],
+      "types": [
+        {
+          "id": "balcony",
+          "name": "Balcony",
+          "display_title": "BALCONY",
+          "tagline": "Take The Evening Outside",
+          "description": "Open the doors to your private balcony and make a little more of the evening, with a drink in hand, the city beyond and nowhere you need to be just yet.",
+          "amenities": [
+            "Private Balcony",
+            "King size Bed",
+            "Shower area",
+            "T.V Unit",
+            "Walk-In Wardrobe",
+            "Dressing area"
+          ],
+          "price_per_night": 70854,
+          "images": [
+            "/wp-content/uploads/rooms/jazz-balcony.jpg"
+          ]
+        },
+        {
+          "id": "jacuzzi",
+          "name": "Jacuzzi",
+          "display_title": "JACUZZI",
+          "tagline": "Stay In For The Evening",
+          "description": "With a private Jacuzzi waiting in your room, there is very little reason to make plans after a long day. Draw the curtains, pour yourself a drink and settle in.",
+          "amenities": [
+            "Jacuzzi",
+            "King size Bed",
+            "Shower area",
+            "T.V Unit",
+            "Walk-In Wardrobe",
+            "Dressing area"
+          ],
+          "price_per_night": 75000,
+          "images": [
+            "/wp-content/uploads/rooms/jazz-jacuzzi.jpg"
+          ]
+        }
       ]
     },
     {
@@ -42,6 +82,46 @@
       ],
       "images": [
         "/wp-content/uploads/rooms/literature-1.jpg"
+      ],
+      "types": [
+        {
+          "id": "balcony",
+          "name": "Balcony",
+          "display_title": "BALCONY",
+          "tagline": "Take The Evening Outside",
+          "description": "Open the doors to your private balcony and make a little more of the evening, with a drink in hand, the city beyond and nowhere you need to be just yet.",
+          "amenities": [
+            "Private Balcony",
+            "King size Bed",
+            "Shower area",
+            "T.V Unit",
+            "Walk-In Wardrobe",
+            "Dressing area"
+          ],
+          "price_per_night": 125000,
+          "images": [
+            "/wp-content/uploads/rooms/literature-balcony.jpg"
+          ]
+        },
+        {
+          "id": "jacuzzi",
+          "name": "Jacuzzi",
+          "display_title": "JACUZZI",
+          "tagline": "Stay In For The Evening",
+          "description": "With a private Jacuzzi waiting in your room, there is very little reason to make plans after a long day. Draw the curtains, pour yourself a drink and settle in.",
+          "amenities": [
+            "Jacuzzi",
+            "King size Bed",
+            "Shower area",
+            "T.V Unit",
+            "Walk-In Wardrobe",
+            "Dressing area"
+          ],
+          "price_per_night": 135000,
+          "images": [
+            "/wp-content/uploads/rooms/literature-jacuzzi.jpg"
+          ]
+        }
       ]
     },
     {
@@ -64,6 +144,46 @@
       ],
       "images": [
         "/wp-content/uploads/rooms/love-1.jpg"
+      ],
+      "types": [
+        {
+          "id": "balcony",
+          "name": "Balcony",
+          "display_title": "BALCONY",
+          "tagline": "Take The Evening Outside",
+          "description": "Open the doors to your private balcony and make a little more of the evening, with a drink in hand, the city beyond and nowhere you need to be just yet.",
+          "amenities": [
+            "Private Balcony",
+            "King size Bed",
+            "Shower area",
+            "T.V Unit",
+            "Walk-In Wardrobe",
+            "Dressing area"
+          ],
+          "price_per_night": 92000,
+          "images": [
+            "/wp-content/uploads/rooms/love-balcony.jpg"
+          ]
+        },
+        {
+          "id": "jacuzzi",
+          "name": "Jacuzzi",
+          "display_title": "JACUZZI",
+          "tagline": "Stay In For The Evening",
+          "description": "With a private Jacuzzi waiting in your room, there is very little reason to make plans after a long day. Draw the curtains, pour yourself a drink and settle in.",
+          "amenities": [
+            "Jacuzzi",
+            "King size Bed",
+            "Shower area",
+            "T.V Unit",
+            "Walk-In Wardrobe",
+            "Dressing area"
+          ],
+          "price_per_night": 98000,
+          "images": [
+            "/wp-content/uploads/rooms/love-jacuzzi.jpg"
+          ]
+        }
       ]
     },
     {
@@ -86,6 +206,46 @@
       ],
       "images": [
         "/wp-content/uploads/rooms/theatre-1.jpg"
+      ],
+      "types": [
+        {
+          "id": "balcony",
+          "name": "Balcony",
+          "display_title": "BALCONY",
+          "tagline": "Take The Evening Outside",
+          "description": "Open the doors to your private balcony and make a little more of the evening, with a drink in hand, the city beyond and nowhere you need to be just yet.",
+          "amenities": [
+            "Private Balcony",
+            "King size Bed",
+            "Shower area",
+            "T.V Unit",
+            "Walk-In Wardrobe",
+            "Dressing area"
+          ],
+          "price_per_night": 145000,
+          "images": [
+            "/wp-content/uploads/rooms/theatre-balcony.jpg"
+          ]
+        },
+        {
+          "id": "jacuzzi",
+          "name": "Jacuzzi",
+          "display_title": "JACUZZI",
+          "tagline": "Stay In For The Evening",
+          "description": "With a private Jacuzzi waiting in your room, there is very little reason to make plans after a long day. Draw the curtains, pour yourself a drink and settle in.",
+          "amenities": [
+            "Jacuzzi",
+            "King size Bed",
+            "Shower area",
+            "T.V Unit",
+            "Walk-In Wardrobe",
+            "Dressing area"
+          ],
+          "price_per_night": 155000,
+          "images": [
+            "/wp-content/uploads/rooms/theatre-jacuzzi.jpg"
+          ]
+        }
       ]
     }
   ]

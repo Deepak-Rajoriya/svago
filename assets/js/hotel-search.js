@@ -16,8 +16,6 @@
         var $form = $searchContainer.find('.svago-search-form');
         var $checkIn = $('#svago-check-in');
         var $checkOut = $('#svago-check-out');
-        var $childrenSelect = $('#svago-children');
-        var $childAgesContainer = $('#svago-child-ages-container');
 
         // 1. Date synchronization: Check-out must be after check-in
         $checkIn.on('change', function() {
@@ -37,36 +35,7 @@
             }
         });
 
-        // 2. Dynamic Child Ages handler
-        function updateChildAges(count) {
-            var num = parseInt(count, 10) || 0;
-            if (num > 0) {
-                $childAgesContainer.slideDown(200);
-            } else {
-                $childAgesContainer.slideUp(200);
-            }
-
-            for (var i = 1; i <= 5; i++) {
-                var $item = $('.svago-child-age-' + i);
-                var $select = $item.find('select');
-                if (i <= num) {
-                    $item.show();
-                    $select.prop('disabled', false);
-                } else {
-                    $item.hide();
-                    $select.prop('disabled', true);
-                }
-            }
-        }
-
-        $childrenSelect.on('change', function() {
-            updateChildAges($(this).val());
-        });
-
-        // Initial check on load
-        updateChildAges($childrenSelect.val());
-
-        // 3. Handle AJAX search submission if room results container exists on page
+        // 2. Handle AJAX search submission if room results container exists on page
         $form.on('submit', function(e) {
             var $resultsContainer = $('#svago-room-results');
             if (!$resultsContainer.length) {
@@ -85,12 +54,7 @@
                 nonce: svago_booking_vars.nonce,
                 check_in: $checkIn.val(),
                 check_out: $checkOut.val(),
-                adults: $('#svago-adults').val(),
-                children: $childrenSelect.val(),
-                child_ages: $('select[name="child_ages[]"]:not(:disabled)').map(function() {
-                    return $(this).val();
-                }).get(),
-                promo_code: $('#svago-promo-code').val()
+                adults: $('#svago-adults').val()
             };
 
             $.post(svago_booking_vars.ajax_url, formData, function(response) {

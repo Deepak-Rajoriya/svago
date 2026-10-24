@@ -52,6 +52,7 @@ final class Product_Seeder {
                 [ 'rate_id' => 'RT003', 'name' => 'Half Board', 'price_per_night' => 89500 ],
             ],
             'images'      => [ '/wp-content/uploads/rooms/jazz-1.jpg' ],
+            'types'       => [ 'Balcony', 'Jacuzzi' ],
         ],
         [
             'id'          => 'RM002',
@@ -80,6 +81,7 @@ final class Product_Seeder {
                 [ 'rate_id' => 'RT012', 'name' => 'Full Board', 'price_per_night' => 155000 ],
             ],
             'images'      => [ '/wp-content/uploads/rooms/literature-1.jpg' ],
+            'types'       => [ 'Balcony', 'Jacuzzi' ],
         ],
         [
             'id'          => 'RM003',
@@ -108,6 +110,7 @@ final class Product_Seeder {
                 [ 'rate_id' => 'RT022', 'name' => 'Half Board', 'price_per_night' => 115000 ],
             ],
             'images'      => [ '/wp-content/uploads/rooms/love-1.jpg' ],
+            'types'       => [ 'Balcony', 'Jacuzzi' ],
         ],
         [
             'id'          => 'RM004',
@@ -136,6 +139,7 @@ final class Product_Seeder {
                 [ 'rate_id' => 'RT032', 'name' => 'Full Board', 'price_per_night' => 180000 ],
             ],
             'images'      => [ '/wp-content/uploads/rooms/theatre-1.jpg' ],
+            'types'       => [ 'Balcony', 'Jacuzzi' ],
         ],
     ];
 
@@ -226,6 +230,8 @@ final class Product_Seeder {
             update_post_meta( $product_id, '_max_children', $room['max_children'] );
             update_post_meta( $product_id, '_amenities', wp_json_encode( $room['amenities'] ) );
             update_post_meta( $product_id, '_room_images', wp_json_encode( $room['images'] ) );
+            update_post_meta( $product_id, '_room_types', wp_json_encode( $room['types'] ?? [ 'Balcony', 'Jacuzzi' ] ) );
+            update_post_meta( $product_id, '_svago_room_types', wp_json_encode( $room['types'] ?? [ 'Balcony', 'Jacuzzi' ] ) );
 
             // Clear WooCommerce lookup cache if WC is active
             if ( function_exists( 'wc_delete_product_transients' ) ) {

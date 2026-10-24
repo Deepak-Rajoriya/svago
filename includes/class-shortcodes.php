@@ -37,6 +37,7 @@ final class Shortcodes {
      */
     public function __construct() {
         // Register Shortcodes
+        add_shortcode( 'hotel_calendar', [ $this, 'render_calendar_step' ] );
         add_shortcode( 'hotel_search', [ $this, 'render_search_widget' ] );
         add_shortcode( 'hotel_rooms', [ $this, 'render_room_results' ] );
         add_shortcode( 'hotel_booking', [ $this, 'render_booking_flow' ] );
@@ -95,29 +96,31 @@ final class Shortcodes {
 
         $currency_symbol = function_exists( 'get_woocommerce_currency_symbol' ) ? get_woocommerce_currency_symbol() : '₹';
 
-        wp_localize_script(
-            'svago-hotel-search',
-            'svago_booking_vars',
-            [
-                'ajax_url'           => admin_url( 'admin-ajax.php' ),
-                'nonce'              => wp_create_nonce( 'svago_booking_nonce' ),
-                'currency'           => $currency_symbol,
-                'razorpay_key'       => get_option( 'svago_razorpay_key_id', '' ),
-                'booking_url'        => '',
-                'booking_page_url'   => get_option( 'svago_booking_page_url', '' ),
-                'current_check_in'   => isset( $_GET['check_in'] ) ? sanitize_text_field( $_GET['check_in'] ) : date( 'Y-m-d', strtotime( '+1 day' ) ),
-                'current_check_out'  => isset( $_GET['check_out'] ) ? sanitize_text_field( $_GET['check_out'] ) : date( 'Y-m-d', strtotime( '+3 days' ) ),
-                'current_adults'     => isset( $_GET['adults'] ) ? intval( $_GET['adults'] ) : 2,
-                'current_children'   => isset( $_GET['children'] ) ? intval( $_GET['children'] ) : 0,
-                'i18n'               => [
-                    'searching'   => __( 'Searching availability...', 'svago' ),
-                    'processing'  => __( 'Processing...', 'svago' ),
-                    'selected'    => __( 'Selected', 'svago' ),
-                    'book_now'    => __( 'Book Now', 'svago' ),
-                    'error'       => __( 'Unable to load room availability. Please try again.', 'svago' ),
-                ],
-            ]
-        );
+        $vars_payload = [
+            'ajax_url'           => admin_url( 'admin-ajax.php' ),
+            'nonce'              => wp_create_nonce( 'svago_booking_nonce' ),
+            'currency'           => $currency_symbol,
+            'razorpay_key'       => get_option( 'svago_razorpay_key_id', '' ),
+            'booking_url'        => '',
+            'booking_page_url'   => get_option( 'svago_booking_page_url', '' ),
+            'current_check_in'   => isset( $_GET['check_in'] ) ? sanitize_text_field( $_GET['check_in'] ) : date( 'Y-m-d', strtotime( '+1 day' ) ),
+            'current_check_out'  => isset( $_GET['check_out'] ) ? sanitize_text_field( $_GET['check_out'] ) : date( 'Y-m-d', strtotime( '+3 days' ) ),
+            'current_adults'     => isset( $_GET['adults'] ) ? intval( $_GET['adults'] ) : 2,
+            'current_children'   => isset( $_GET['children'] ) ? intval( $_GET['children'] ) : 0,
+            'checkout_url'       => function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : home_url( '/checkout/' ),
+            'i18n'               => [
+                'searching'   => __( 'Searching availability...', 'svago' ),
+                'processing'  => __( 'Processing...', 'svago' ),
+                'redirecting' => __( 'Redirecting to Checkout...', 'svago' ),
+                'selected'    => __( 'Selected', 'svago' ),
+                'book_now'    => __( 'Book Now', 'svago' ),
+                'error'       => __( 'Unable to load room availability. Please try again.', 'svago' ),
+            ],
+        ];
+
+        wp_localize_script( 'svago-hotel-search', 'svago_booking_vars', $vars_payload );
+        wp_localize_script( 'svago-hotel-rooms', 'svago_booking_vars', $vars_payload );
+        wp_localize_script( 'svago-hotel-booking', 'svago_booking_vars', $vars_payload );
     }
 
     /**
@@ -133,8 +136,6 @@ final class Shortcodes {
                 'check_in'   => '',
                 'check_out'  => '',
                 'adults'     => 2,
-                'children'   => 0,
-                'promo_code' => '',
             ],
             $atts,
             'hotel_search'
@@ -144,13 +145,6 @@ final class Shortcodes {
         $check_in   = ! empty( $_GET['check_in'] ) ? sanitize_text_field( $_GET['check_in'] ) : $atts['check_in'];
         $check_out  = ! empty( $_GET['check_out'] ) ? sanitize_text_field( $_GET['check_out'] ) : $atts['check_out'];
         $adults     = isset( $_GET['adults'] ) ? max( 1, intval( $_GET['adults'] ) ) : intval( $atts['adults'] );
-        $children   = isset( $_GET['children'] ) ? max( 0, intval( $_GET['children'] ) ) : intval( $atts['children'] );
-        $promo_code = ! empty( $_GET['promo_code'] ) ? sanitize_text_field( $_GET['promo_code'] ) : $atts['promo_code'];
-        $child_ages = [];
-
-        if ( isset( $_GET['child_ages'] ) && is_array( $_GET['child_ages'] ) ) {
-            $child_ages = array_map( 'intval', $_GET['child_ages'] );
-        }
 
         $action_url = ! empty( $atts['action_url'] ) ? esc_url( $atts['action_url'] ) : '';
 
@@ -365,7 +359,54 @@ final class Shortcodes {
     }
 
     /**
+     * Render Step 1: Calendar Screen
+     *
+     * @param array|string $atts
+     * @return string
+     */
+    public function render_calendar_step( $atts = [] ): string {
+        $atts = shortcode_atts(
+            [
+                'action_url' => '',
+                'check_in'   => '',
+                'check_out'  => '',
+                'adults'     => 2,
+                'children'   => 0,
+                'rooms'      => 1,
+            ],
+            $atts,
+            'hotel_calendar'
+        );
+
+        $today = function_exists( 'current_time' ) ? current_time( 'Y-m-d' ) : date( 'Y-m-d' );
+        $check_in  = ! empty( $_GET['check_in'] ) ? sanitize_text_field( $_GET['check_in'] ) : ( ! empty( $atts['check_in'] ) ? $atts['check_in'] : $today );
+        $check_out = ! empty( $_GET['check_out'] ) ? sanitize_text_field( $_GET['check_out'] ) : ( ! empty( $atts['check_out'] ) ? $atts['check_out'] : $today );
+        $adults    = isset( $_GET['adults'] ) ? max( 1, intval( $_GET['adults'] ) ) : max( 1, intval( $atts['adults'] ) );
+        $children  = isset( $_GET['children'] ) ? max( 0, intval( $_GET['children'] ) ) : max( 0, intval( $atts['children'] ) );
+        $rooms     = isset( $_GET['rooms'] ) ? max( 1, intval( $_GET['rooms'] ) ) : max( 1, intval( $atts['rooms'] ) );
+
+        $action_url = ! empty( $atts['action_url'] ) ? $atts['action_url'] : ( ! empty( $_SERVER['REQUEST_URI'] ) ? strtok( $_SERVER['REQUEST_URI'], '?' ) : '' );
+        if ( empty( $action_url ) ) {
+            $booking_page_id = get_option( 'svago_booking_page_id', 0 );
+            $action_url      = $booking_page_id ? get_permalink( $booking_page_id ) : home_url( '/booking/' );
+        }
+
+        ob_start();
+        $template = SVAGO_PATH . 'templates/calendar-step.php';
+        if ( file_exists( $template ) ) {
+            include $template;
+        }
+        return ob_get_clean();
+    }
+
+    /**
      * Render unified [hotel_booking] shortcode
+     *
+     * Flow structure:
+     * Step 1: Calendar (default landing, search redirect, Book Now)
+     * Step 2: Room Listing (step=rooms)
+     * Step 3: Guest Info (step=details)
+     * Direct Checkout: Submitting guest details redirects immediately to WooCommerce Checkout
      *
      * @param array|string $atts
      * @return string
@@ -374,21 +415,27 @@ final class Shortcodes {
         $session_data = Booking_Flow::get_session_data();
         $step = isset( $_GET['step'] ) ? sanitize_text_field( $_GET['step'] ) : ( $session_data['step'] ?? '' );
 
-        // If on confirmation step (session already cleared after payment), render confirmation directly
-        if ( 'confirmation' === $step ) {
-            return $this->render_confirmation();
+        // 1. Step 3: Guest Info (step=details; also handles legacy 'review' by rendering guest details)
+        if ( 'details' === $step || 'review' === $step ) {
+            return $this->render_guest_details();
         }
 
-        // If no booking session exists, show room search / selection
-        if ( empty( $session_data ) ) {
+        // 2. Step 2: Room & Rate Selection (step=rooms)
+        if ( 'rooms' === $step ) {
             return $this->render_room_results();
         }
 
-        if ( 'review' === $step ) {
-            return $this->render_review();
+        // Retained for receipt lookup / direct link compatibility
+        if ( 'confirmation' === $step && ! empty( $_GET['order_id'] ) ) {
+            return $this->render_confirmation();
         }
 
-        return $this->render_guest_details();
+        // 3. Step 1: Calendar Screen
+        // Handles:
+        // - Submitting [hotel_search] (lands on Step 1 Calendar pre-filled with search dates and guests)
+        // - Direct "Book Now" click (lands on Step 1 Calendar defaulted to today's date)
+        // - Explicit step=calendar
+        return $this->render_calendar_step( $atts );
     }
 
     /**
@@ -399,8 +446,88 @@ final class Shortcodes {
      */
     public function render_guest_details( $atts = [] ): string {
         $booking_data = Booking_Flow::get_session_data();
-        if ( empty( $booking_data ) ) {
-            return $this->render_room_results();
+
+        // Auto-hydrate from query parameters if session is empty or missing room_id
+        if ( empty( $booking_data ) || empty( $booking_data['room_id'] ) ) {
+            $get_room_id = ! empty( $_GET['room_id'] ) ? sanitize_text_field( $_GET['room_id'] ) : 'RM001';
+            $get_room_type = ! empty( $_GET['room_type'] ) ? sanitize_text_field( $_GET['room_type'] ) : 'Balcony';
+            $today = function_exists( 'current_time' ) ? current_time( 'Y-m-d' ) : date( 'Y-m-d' );
+            $check_in = ! empty( $_GET['check_in'] ) ? sanitize_text_field( $_GET['check_in'] ) : $today;
+            $check_out = ! empty( $_GET['check_out'] ) ? sanitize_text_field( $_GET['check_out'] ) : date( 'Y-m-d', strtotime( $check_in . ' +1 day' ) );
+            if ( $check_in >= $check_out ) {
+                $check_out = date( 'Y-m-d', strtotime( $check_in . ' +1 day' ) );
+            }
+            $adults = isset( $_GET['adults'] ) ? max( 1, intval( $_GET['adults'] ) ) : 2;
+            $children = isset( $_GET['children'] ) ? max( 0, intval( $_GET['children'] ) ) : 0;
+
+            $provider = Provider_Factory::get();
+            $rooms = Provider_Factory::execute_with_fallback(
+                function() use ( $provider ) {
+                    return $provider->get_rooms();
+                },
+                'get_rooms'
+            );
+            unset( $rooms['_fallback'], $rooms['_fallback_message'] );
+
+            $selected_room = null;
+            if ( is_array( $rooms ) ) {
+                foreach ( $rooms as $r ) {
+                    if ( ( $r['id'] ?? '' ) === $get_room_id ) {
+                        $selected_room = $r;
+                        break;
+                    }
+                }
+                if ( ! $selected_room && ! empty( $rooms[0] ) ) {
+                    $selected_room = $rooms[0];
+                    $get_room_id = $selected_room['id'] ?? 'RM001';
+                }
+            }
+
+            try {
+                $d_start = new \DateTime( $check_in );
+                $d_end   = new \DateTime( $check_out );
+                $nights  = max( 1, (int) $d_start->diff( $d_end )->days );
+            } catch ( \Throwable $e ) {
+                $nights = 1;
+            }
+
+            $price_per_night = (float) ( $selected_room['price'] ?? 70854 );
+            if ( ! empty( $selected_room['types'] ) && is_array( $selected_room['types'] ) ) {
+                foreach ( $selected_room['types'] as $t_info ) {
+                    if ( ( $t_info['name'] ?? '' ) === $get_room_type && isset( $t_info['price'] ) ) {
+                        $price_per_night = (float) $t_info['price'];
+                        break;
+                    }
+                }
+            }
+
+            $placeholder_url = defined( 'SVAGO_URL' ) ? SVAGO_URL . 'assets/images/placeholder.png' : '';
+            $selected_img = ! empty( $selected_room['images'][0] ) ? $selected_room['images'][0] : $placeholder_url;
+
+            $booking_data = [
+                'room_id'         => $get_room_id,
+                'room_type'       => $get_room_type,
+                'room_name'       => $selected_room['name'] ?? __( 'Hotel Room', 'svago' ),
+                'room_size'       => $selected_room['size'] ?? '',
+                'bed_type'        => $selected_room['bed_type'] ?? '',
+                'room_image'      => $selected_img,
+                'rate_id'         => 'standard',
+                'rate_name'       => __( 'Standard Rate', 'svago' ),
+                'rate_desc'       => '',
+                'tax_included'    => false,
+                'check_in'        => $check_in,
+                'check_out'       => $check_out,
+                'nights'          => $nights,
+                'adults'          => $adults,
+                'children'        => $children,
+                'child_ages'      => [],
+                'price_per_night' => $price_per_night,
+                'total_amount'    => $price_per_night * $nights,
+                'guest'           => [],
+                'step'            => 'details',
+                'created_at'      => time(),
+            ];
+            Booking_Flow::set_session_data( $booking_data );
         }
 
         $currency = function_exists( 'get_woocommerce_currency_symbol' ) ? get_woocommerce_currency_symbol() : '₹';

@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $room_name       = $booking_data['room_name'] ?? esc_html__( 'Selected Room', 'svago' );
+$room_type       = $booking_data['room_type'] ?? '';
 $room_image      = $booking_data['room_image'] ?? '';
 $room_size       = $booking_data['room_size'] ?? '';
 $bed_type        = $booking_data['bed_type'] ?? '';
@@ -54,11 +55,6 @@ $special_requests = $guest['special_requests'] ?? '';
             <span class="svago-step-num">3</span>
             <span class="svago-step-label"><?php esc_html_e( 'Review & Policy', 'svago' ); ?></span>
         </div>
-        <div class="svago-step-line"></div>
-        <div class="svago-step">
-            <span class="svago-step-num">4</span>
-            <span class="svago-step-label"><?php esc_html_e( 'Payment', 'svago' ); ?></span>
-        </div>
     </div>
 
     <!-- Pre-payment Availability Alert Box (Task 3.5 & 3.6) -->
@@ -84,18 +80,27 @@ $special_requests = $guest['special_requests'] ?? '';
             <div class="svago-card svago-review-card">
                 <div class="svago-card-header">
                     <h2 class="svago-card-title"><?php esc_html_e( 'Review Your Reservation', 'svago' ); ?></h2>
-                    <p class="svago-card-subtitle"><?php esc_html_e( 'Please check your reservation details before proceeding to payment.', 'svago' ); ?></p>
+                    <p class="svago-card-subtitle"><?php esc_html_e( 'Please check your reservation details before proceeding to checkout.', 'svago' ); ?></p>
                 </div>
 
                 <div class="svago-review-room-box">
-                    <?php if ( ! empty( $room_image ) ) : ?>
-                        <div class="svago-review-room-thumb">
-                            <img src="<?php echo esc_url( $room_image ); ?>" alt="<?php echo esc_attr( $room_name ); ?>" />
-                        </div>
-                    <?php endif; ?>
+                    <?php 
+                    $placeholder_url = SVAGO_URL . 'assets/images/placeholder.png';
+                    $review_img      = ! empty( $room_image ) ? $room_image : $placeholder_url;
+                    ?>
+                    <div class="svago-review-room-thumb">
+                        <img 
+                            src="<?php echo esc_url( $review_img ); ?>" 
+                            alt="<?php echo esc_attr( $room_name ); ?>" 
+                            onerror="this.onerror=null;this.src='<?php echo esc_url( $placeholder_url ); ?>';" 
+                        />
+                    </div>
                     <div class="svago-review-room-text">
                         <h3 class="svago-review-room-title"><?php echo esc_html( $room_name ); ?></h3>
                         <div class="svago-review-room-specs">
+                            <?php if ( ! empty( $room_type ) ) : ?>
+                                <span class="svago-review-room-type" style="font-weight:600; color:#1e3a8a;">🌿 <?php echo esc_html( sprintf( __( 'Type: %s', 'svago' ), $room_type ) ); ?></span>
+                            <?php endif; ?>
                             <?php if ( ! empty( $bed_type ) ) : ?>
                                 <span>🛏️ <?php echo esc_html( $bed_type ); ?></span>
                             <?php endif; ?>
@@ -201,7 +206,7 @@ $special_requests = $guest['special_requests'] ?? '';
                     disabled
                 >
                     <span class="svago-btn-text">
-                        🔒 <?php esc_html_e( 'Proceed to Pay', 'svago' ); ?> (<?php echo esc_html( $currency_sym . number_format( $total_amount ) ); ?>)
+                        🔒 <?php esc_html_e( 'Proceed to Checkout', 'svago' ); ?> (<?php echo esc_html( $currency_sym . number_format( $total_amount ) ); ?>)
                     </span>
                     <span class="svago-spinner" aria-hidden="true"></span>
                 </button>

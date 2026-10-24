@@ -1299,3 +1299,1622 @@
     }
 }
 
+/* ==========================================================================
+   Step 1: Calendar Screen Styles
+   ========================================================================== */
+
+:root {
+    --cal-font-main: var(--font-main, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif);
+    --cal-font-serif: var(--font-serif, Georgia, 'Playfair Display', Cambria, 'Times New Roman', serif);
+    --cal-page-bg: var(--primary-bg, #f7f1e7);
+    --cal-primary-color: var(--primary-color, #111111);
+    --cal-primary-hover: var(--primary-color-hover, #333333);
+    --cal-border-color: var(--border-color, #000000);
+    --cal-border-dark: var(--border-dark, #000000);
+    --cal-border-subtle: #666666;
+    --cal-text-color: var(--text-color, #111111);
+    --cal-text-secondary: var(--text-secondary, #333333);
+    --cal-text-muted: var(--text-muted, #777777);
+    --cal-bg-light: var(--bg-light, #f7f1e7);
+    --cal-bg-card: var(--bg-card, #ffffff);
+    --cal-bg-hover: var(--bg-hover, #ede7dc);
+    --cal-selected-bg: var(--selected-bg, #efe9e0);
+    --cal-selected-text: var(--selected-text, #111111);
+    --cal-active-color: var(--active-color, #222222);
+    --cal-inactive-color: var(--inactive-color, #999999);
+    --cal-panel-header-bg: var(--panel-header-bg, #262626);
+    --cal-panel-header-text: var(--panel-header-text, #ffffff);
+    --cal-panel-body-bg: var(--panel-body-bg, #efe9e0);
+    --cal-cta-bg: var(--cta-bg, #262626);
+    --cal-cta-text: var(--cta-text, #ffffff);
+    --cal-cta-hover-bg: var(--cta-hover-bg, #111111);
+}
+
+/* Full-page container, max-width ~1200px, centered on screen */
+.svago-calendar-flow-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px 20px 40px 20px;
+    background-color: var(--cal-page-bg, #f7f1e7);
+    font-family: var(--cal-font-main);
+    color: var(--cal-text-color);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.svago-calendar-flow-container * {
+    box-sizing: border-box;
+}
+
+/* Top Navigation Bar: Centered horizontally, text sequence, NEXT STEPS > on far right */
+.svago-top-nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0 24px 0;
+    border-bottom: none;
+    position: relative;
+    width: 100%;
+}
+
+.svago-top-nav-spacer {
+    flex: 1;
+    min-width: 80px;
+}
+
+.svago-top-nav-sequence {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    flex: 2;
+    text-align: center;
+    font-family: var(--cal-font-main);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+}
+
+.svago-nav-step {
+    white-space: nowrap;
+}
+
+.svago-nav-step.svago-nav-active {
+    font-weight: 600;
+    color: var(--cal-active-color, #222222);
+}
+
+.svago-nav-step.svago-nav-inactive {
+    font-weight: 400;
+    color: var(--cal-inactive-color, #999999);
+}
+
+.svago-nav-separator {
+    display: none;
+}
+
+.svago-top-nav-next {
+    flex: 1;
+    min-width: 80px;
+    text-align: right;
+}
+
+.svago-next-steps-text {
+    font-family: var(--cal-font-main);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--cal-inactive-color, #999999);
+    letter-spacing: 0.06em;
+    user-select: none;
+}
+
+/* 2-Column CSS Grid Layout: Left ~65%, Right ~35%, gap ~20px */
+.svago-calendar-layout-grid {
+    display: grid;
+    grid-template-columns: 65% 35%;
+    gap: 20px;
+    align-items: start;
+    width: 100%;
+}
+
+/* Responsive: below 768px, stack sidebar below calendar */
+@media (max-width: 768px) {
+    .svago-calendar-layout-grid {
+        grid-template-columns: 1fr;
+    }
+    .svago-top-nav-bar {
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+    }
+    .svago-top-nav-spacer {
+        display: none;
+    }
+    .svago-top-nav-next {
+        text-align: center;
+    }
+    .svago-top-nav-sequence {
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+}
+
+/* Left Column: Calendar Area */
+.svago-calendar-area-column {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    width: 100%;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.svago-calendar-card-box {
+    background: var(--cal-bg-card, #ffffff);
+    border: 1.5px solid var(--cal-border-dark, #000000);
+    border-radius: 0;
+    padding: 0;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+/* Header Banner: centered title "Select your Dates" */
+.svago-calendar-header-wrapper {
+    background-color: var(--cal-page-bg, #f7f1e7);
+    padding: 12px 16px;
+    text-align: center;
+    border-bottom: 1.5px solid var(--cal-border-dark, #000000);
+}
+
+.svago-calendar-title {
+    margin: 0;
+    font-family: var(--cal-font-serif);
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--cal-text-color, #111111);
+    letter-spacing: 0.02em;
+    text-align: center;
+}
+
+.svago-calendar-title-divider {
+    display: none;
+    height: 0;
+}
+
+/* Dual-month view: Two months side-by-side with vertical border */
+.svago-dual-months-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #ffffff;
+    position: relative;
+    width: 100%;
+}
+
+@media (max-width: 640px) {
+    .svago-dual-months-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.svago-month-grid-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.svago-first-month {
+    border-right: 1.5px solid var(--cal-border-dark, #000000);
+    position: relative;
+    padding: 14px 12px 20px 12px;
+}
+
+.svago-second-month {
+    position: relative;
+    padding: 14px 12px 20px 12px;
+}
+
+.svago-months-vertical-divider {
+    display: none;
+}
+
+/* Arrow buttons: Crisp black boxes pinned to top corners */
+.svago-cal-arrow-btn {
+    position: absolute;
+    top: 0;
+    width: 38px;
+    height: 30px;
+    background: #ffffff;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #000000;
+    transition: background-color 0.15s ease;
+    z-index: 2;
+    padding: 0;
+}
+
+.svago-cal-prev-btn {
+    left: 0;
+    border-right: 1.5px solid var(--cal-border-dark, #000000);
+    border-bottom: 1.5px solid var(--cal-border-dark, #000000);
+}
+
+.svago-cal-next-btn {
+    right: 0;
+    border-left: 1.5px solid var(--cal-border-dark, #000000);
+    border-bottom: 1.5px solid var(--cal-border-dark, #000000);
+}
+
+.svago-cal-arrow-btn:hover {
+    background: var(--cal-bg-hover, #ede7dc);
+}
+
+.svago-cal-arrow-btn:active {
+    transform: scale(0.96);
+}
+
+/* Month headers: centered month + year text, thin horizontal line below */
+.svago-month-header {
+    text-align: center;
+    padding: 22px 0 6px 0;
+    margin-bottom: 0;
+}
+
+.svago-month-name {
+    margin: 0;
+    font-family: var(--cal-font-serif);
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: #111111;
+    text-transform: uppercase;
+}
+
+.svago-month-header-divider {
+    width: 86%;
+    height: 1px;
+    background-color: var(--cal-border-subtle, #666666);
+    margin: 8px auto 0 auto;
+}
+
+/* Days-of-week row: "Sun Mon Tue Wed Thu Fri Sat", evenly spaced across grid */
+.svago-days-of-week-row {
+    width: 86%;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-family: var(--cal-font-serif);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #222222;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--cal-border-subtle, #666666);
+    text-transform: none;
+}
+
+/* Month Days Grid: CSS Grid with 7 columns */
+.svago-month-days-grid {
+    width: 86%;
+    margin: 4px auto 8px auto;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+}
+
+/* Date cells: prominent date number, secondary price below, subtle hover effects */
+.svago-date-cell {
+    min-height: 38px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 1px;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    background: transparent;
+    user-select: none;
+    transition: background-color 0.15s ease;
+}
+
+.svago-date-cell.svago-cell-empty {
+    cursor: default;
+    background: transparent;
+}
+
+.svago-date-cell:not(.svago-cell-empty):not(.svago-date-unavailable):hover {
+    background: var(--cal-bg-hover, #ede7dc);
+}
+
+.svago-date-num {
+    font-family: var(--cal-font-serif);
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.1;
+    color: #111111;
+}
+
+.svago-date-price {
+    display: none !important;
+}
+
+/* Date cells: Selected state - dates 1, 2, 3 on October calendar distinct highlight */
+.svago-date-cell.svago-date-selected {
+    background-color: var(--cal-selected-bg, #efe9e0) !important;
+    border-radius: 0 !important;
+    border: none !important;
+}
+
+.svago-date-cell.svago-date-selected .svago-date-num,
+.svago-date-cell.svago-date-selected .svago-date-price {
+    color: #111111 !important;
+}
+
+/* Date cells: Unavailable state */
+.svago-date-cell.svago-date-unavailable {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Date cells: Past & Disabled dates (Cannot select dates before today) */
+.svago-date-cell.svago-date-past,
+.svago-date-cell.svago-date-disabled {
+    opacity: 0.35 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    background: transparent !important;
+    color: var(--cal-text-muted, #999999) !important;
+}
+
+.svago-date-cell.svago-date-past .svago-date-num,
+.svago-date-cell.svago-date-disabled .svago-date-num {
+    text-decoration: line-through;
+    color: var(--cal-text-muted, #999999) !important;
+}
+
+.svago-date-cell.svago-date-past .svago-date-price,
+.svago-date-cell.svago-date-disabled .svago-date-price {
+    opacity: 0.35;
+    color: var(--cal-text-muted, #999999) !important;
+}
+
+/* Disabled calendar arrow button */
+.svago-cal-arrow-btn.svago-cal-disabled,
+.svago-cal-arrow-btn:disabled,
+.svago-cal-arrow-btn[disabled] {
+    opacity: 0.25;
+    cursor: not-allowed;
+    pointer-events: none;
+    border-color: #cccccc;
+}
+
+.svago-date-unavail-mark {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--cal-text-muted, #777777);
+    margin-top: 1px;
+}
+
+/* Legend below calendar */
+.svago-calendar-legend-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 2px 0 2px;
+    margin-top: 0;
+    border-top: none;
+    font-family: var(--cal-font-serif);
+    font-size: 0.8125rem;
+    color: #222222;
+    width: 100%;
+}
+
+.svago-legend-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.svago-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.svago-legend-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--cal-border-dark, #000000);
+    border-radius: 0;
+    font-size: 10px;
+    line-height: 1;
+    box-sizing: border-box;
+}
+
+.svago-legend-selected-box {
+    background-color: var(--cal-selected-bg, #efe9e0);
+}
+
+.svago-legend-unavailable-box {
+    background-color: #ffffff;
+    color: #000000;
+    font-weight: bold;
+}
+
+.svago-legend-right {
+    text-align: right;
+}
+
+.svago-modify-reservation-link {
+    font-family: var(--cal-font-serif);
+    color: #222222;
+    text-decoration: underline;
+    font-size: 0.8125rem;
+    transition: opacity 0.15s ease;
+}
+
+.svago-modify-reservation-link:hover {
+    opacity: 0.7;
+}
+
+/* ==========================================================================
+   Right Column: Booking Summary Sidebar (~35% width)
+   ========================================================================== */
+
+.svago-summary-sidebar-column {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    width: 100%;
+}
+
+.svago-calendar-booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+/* Check-in / Check-out panel: Rectangular box split evenly into two halves */
+.svago-stay-dates-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1.5px solid var(--cal-border-dark, #000000);
+    border-radius: 0;
+    overflow: hidden;
+    width: 100%;
+}
+
+.svago-stay-half {
+    display: flex;
+    flex-direction: column;
+}
+
+.svago-stay-half.svago-stay-checkin {
+    border-right: 1.5px solid var(--cal-border-dark, #000000);
+}
+
+/* Top half: Dark background with contrasting text ("Check In" / "Check out") */
+.svago-stay-top-header {
+    background-color: var(--cal-panel-header-bg, #262626);
+    color: var(--cal-panel-header-text, #ffffff);
+    padding: 8px 12px;
+    text-align: center;
+    font-family: var(--cal-font-serif);
+    font-size: 0.85rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+}
+
+/* Bottom half: Large date number ("01" / "03") with month ("October") below */
+.svago-stay-bottom-body {
+    background-color: var(--cal-panel-body-bg, #efe9e0);
+    padding: 18px 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.svago-stay-day-number {
+    font-family: var(--cal-font-serif);
+    font-size: 2.25rem;
+    font-weight: 600;
+    line-height: 1;
+    color: #000000;
+}
+
+.svago-stay-month-name {
+    font-family: var(--cal-font-serif);
+    font-size: 0.85rem;
+    color: #222222;
+    margin-top: 4px;
+}
+
+/* 3 Stacked Dropdown Selectors: thick borders, ample padding, downward triangle */
+.svago-selectors-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.svago-selector-box {
+    position: relative;
+    width: 100%;
+    height: 44px;
+    border: 1.5px solid var(--cal-border-dark, #000000);
+    border-radius: 0;
+    background-color: var(--cal-panel-body-bg, #efe9e0);
+    box-sizing: border-box;
+}
+
+.svago-selector-box .svago-custom-select {
+    width: 100%;
+    height: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 0 36px 0 16px;
+    font-family: var(--cal-font-serif);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #111111;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    line-height: 40px;
+    box-sizing: border-box;
+    transition: background-color 0.15s ease;
+}
+
+.svago-selector-box .svago-custom-select:focus {
+    outline: none;
+}
+
+.svago-dropdown-arrow {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 10px;
+    color: #000000;
+}
+
+/* CTA Button: Large, full-width at bottom of sidebar */
+.svago-sidebar-cta-wrapper {
+    width: 100%;
+    margin-top: 0;
+}
+
+.svago-btn-check-availability {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    background-color: var(--cal-cta-bg, #262626);
+    color: var(--cal-cta-text, #ffffff);
+    font-family: var(--cal-font-main);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    text-align: center;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.svago-btn-check-availability:hover {
+    background-color: var(--cal-cta-hover-bg, #111111);
+}
+
+.svago-btn-check-availability:active {
+    transform: scale(0.99);
+}
+
+/* ==========================================================================
+   Step 2: Room & Rate Selection Screen Styles
+   ========================================================================== */
+
+:root {
+    --primary-bg: #f7f4ee;
+    --card-bg: #ffffff;
+    --text-dark: #18181b;
+    --text-secondary: #52525b;
+    --text-muted: #71717a;
+    --text-green: #15803d;
+    --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    --font-serif: Georgia, "Times New Roman", Garamond, serif;
+    --border-color: #e4e0d7;
+    --border-dark: #27272a;
+    --border-highlight: #18181b;
+    --btn-dark-bg: #222222;
+    --btn-dark-hover: #333333;
+    --btn-dark-text: #ffffff;
+}
+
+/* Overall page background: soft, warm cream/beige */
+.svago-step2-page-wrapper {
+    background-color: var(--primary-bg, #f7f4ee);
+    min-height: 100vh;
+    padding: 32px 20px 60px 20px;
+    font-family: var(--font-main, sans-serif);
+    color: var(--text-dark, #18181b);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.svago-step2-page-wrapper * {
+    box-sizing: border-box;
+}
+
+.svago-step2-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* TOP NAVIGATION BAR (Global for Step 2): Space-between alignment */
+.svago-step2-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    margin-bottom: 40px;
+    border-bottom: 1px solid var(--border-color, #e4e0d7);
+    width: 100%;
+}
+
+.svago-top-bar-left {
+    flex: 1;
+    text-align: left;
+}
+
+.svago-top-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-dark, #18181b);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 6px 0;
+    transition: opacity 0.2s ease;
+}
+
+.svago-top-back-btn:hover {
+    opacity: 0.7;
+}
+
+.svago-top-bar-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex: 2;
+    text-align: center;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+}
+
+.svago-nav-step {
+    white-space: nowrap;
+}
+
+.svago-nav-step.svago-nav-active {
+    font-weight: 700;
+    color: var(--text-dark, #18181b);
+}
+
+.svago-nav-step.svago-nav-inactive {
+    font-weight: 400;
+    color: var(--text-muted, #71717a);
+}
+
+.svago-nav-sep {
+    color: var(--text-muted, #71717a);
+    font-size: 0.75rem;
+    user-select: none;
+}
+
+.svago-top-bar-right {
+    flex: 1;
+    text-align: right;
+}
+
+.svago-next-steps-text {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-muted, #71717a);
+    letter-spacing: 0.05em;
+    user-select: none;
+}
+
+/* ==========================================================================
+   INNER STEP 1: Room Selection (List of Rooms)
+   ========================================================================== */
+
+.svago-room-selection-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+    width: 100%;
+}
+
+/* Each room card: 2-column CSS Grid layout */
+.svago-room-card-v2 {
+    display: grid;
+    grid-template-columns: 52% 48%;
+    gap: 48px;
+    align-items: center;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+/* Left column (Image): ~50-55% width, vertically oriented image, clean edges */
+.svago-room-v2-image-col {
+    width: 100%;
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.svago-room-v2-img-wrapper {
+    width: 100%;
+    height: 540px;
+    position: relative;
+    background-color: #ebe7de;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.svago-room-v2-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.svago-room-card-v2:hover .svago-room-v2-img {
+    transform: scale(1.02);
+}
+
+/* Low stock & sold out badges */
+.svago-v2-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    z-index: 2;
+}
+
+.svago-v2-badge-low-stock {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.svago-v2-badge-sold-out {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+/* Right column (Content): ~45-50% width, center-aligned text */
+.svago-room-v2-content-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 16px;
+    width: 100%;
+}
+
+/* Title Section: Main Heading (mix serif/italic + sans-serif) */
+.svago-room-main-title {
+    margin: 0 0 6px 0;
+    font-size: 2rem;
+    line-height: 1.2;
+    letter-spacing: 0.06em;
+    color: var(--text-dark, #18181b);
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.svago-title-sans {
+    font-family: var(--font-main, sans-serif);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.svago-title-serif {
+    font-family: var(--font-serif, Georgia, serif);
+    font-style: italic;
+    font-weight: 400;
+    text-transform: none;
+}
+
+/* Subheading: Short tagline */
+.svago-room-tagline {
+    font-size: 0.95rem;
+    color: var(--text-secondary, #52525b);
+    margin: 0 0 16px 0;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+/* Description: Narrow max-width, centered */
+.svago-room-description {
+    max-width: 420px;
+    margin: 0 auto 24px auto;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--text-secondary, #52525b);
+}
+
+/* Amenities Grid: 3 columns x 2 rows, minimalist line-art icons */
+.svago-amenities-v2-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 24px;
+    max-width: 380px;
+    margin: 0 auto 28px auto;
+    width: 100%;
+}
+
+.svago-amenity-v2-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+}
+
+.svago-amenity-svg {
+    width: 32px;
+    height: 32px;
+    stroke: var(--text-dark, #18181b);
+    color: var(--text-dark, #18181b);
+    flex-shrink: 0;
+}
+
+.svago-amenity-v2-label {
+    font-size: 0.6875rem;
+    color: var(--text-secondary, #52525b);
+    line-height: 1.2;
+    font-weight: 500;
+}
+
+/* Pricing Section */
+.svago-v2-pricing-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.svago-price-from-label {
+    font-size: 0.875rem;
+    color: var(--text-muted, #71717a);
+    margin-bottom: 2px;
+}
+
+.svago-price-night-large {
+    font-size: 1.625rem;
+    font-weight: 700;
+    color: var(--text-dark, #18181b);
+    line-height: 1.2;
+}
+
+.svago-price-taxes-note {
+    font-size: 0.75rem;
+    color: var(--text-muted, #71717a);
+    margin-top: 4px;
+}
+
+/* CTA Button: Pill-shaped, centered, dark charcoal/black background, white text */
+.svago-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background-color: var(--btn-dark-bg, #222222);
+    color: var(--btn-dark-text, #ffffff);
+    padding: 14px 38px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+.svago-pill-btn:hover {
+    background-color: var(--btn-dark-hover, #333333);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.svago-pill-btn:active {
+    transform: translateY(0);
+}
+
+/* ==========================================================================
+   INNER STEP 2: Room Type Selection (Select Rate Plan)
+   ========================================================================== */
+
+.svago-step2-inner-2-container {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Selected room recap header */
+.svago-selected-room-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color, #e4e0d7);
+    border-radius: 8px;
+    margin-bottom: 32px;
+}
+
+.svago-selected-room-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.svago-selected-room-thumb {
+    width: 60px;
+    height: 60px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.svago-selected-room-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: var(--text-dark, #18181b);
+}
+
+.svago-selected-room-tagline {
+    font-size: 0.8125rem;
+    color: var(--text-muted, #71717a);
+    margin: 0;
+}
+
+.svago-btn-change-room {
+    background: transparent;
+    border: 1px solid var(--border-dark, #27272a);
+    color: var(--text-dark, #18181b);
+    border-radius: 9999px;
+    padding: 8px 18px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.svago-btn-change-room:hover {
+    background: #f1ede4;
+}
+
+/* Room Type Selection: Balcony & Jacuzzi Options */
+.svago-room-type-selection-block {
+    margin-bottom: 28px;
+}
+
+.svago-type-options-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.svago-type-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: 2px solid var(--border-color, #e4e0d7);
+    border-radius: 9999px;
+    background: #ffffff;
+    color: var(--text-dark, #18181b);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.svago-type-pill-btn:hover {
+    border-color: var(--text-dark, #18181b);
+}
+
+.svago-type-pill-btn.svago-type-active {
+    background-color: var(--btn-dark-bg, #222222);
+    color: var(--btn-dark-text, #ffffff);
+    border-color: var(--btn-dark-bg, #222222);
+}
+
+.svago-type-pill-btn .svago-type-icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+/* Section title above the rate plans */
+.svago-rates-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dark, #18181b);
+    margin: 0 0 20px 0;
+}
+
+/* Vertical stack of rate plan cards */
+.svago-rate-plans-v2-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+}
+
+/* Rate Plan Card: 3-block grid layout */
+.svago-rate-plan-card-v2 {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 24px;
+    align-items: center;
+    background-color: #ffffff;
+    border: 2px solid var(--border-color, #e4e0d7);
+    border-radius: 12px;
+    padding: 24px 28px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.svago-rate-plan-card-v2:hover {
+    border-color: var(--text-secondary, #52525b);
+}
+
+.svago-rate-plan-card-v2.svago-plan-active {
+    border-color: var(--border-highlight, #18181b);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Left block: Plan name, short description, green taxes text */
+.svago-plan-v2-left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.svago-plan-v2-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dark, #18181b);
+}
+
+.svago-plan-v2-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary, #52525b);
+    line-height: 1.4;
+}
+
+.svago-plan-v2-tax-tag {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-green, #15803d);
+}
+
+/* Center block: Large bold price per night, small total price for N nights */
+.svago-plan-v2-center {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.svago-plan-v2-nightly {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-dark, #18181b);
+}
+
+.svago-plan-v2-total {
+    font-size: 0.75rem;
+    color: var(--text-muted, #71717a);
+    margin-top: 4px;
+}
+
+/* Right block: Pill-shaped dark Book Now button */
+.svago-plan-v2-right {
+    display: flex;
+    align-items: center;
+}
+
+.svago-plan-book-btn {
+    padding: 12px 28px;
+}
+
+/* ==========================================================================
+   Responsive: Below 768px, stack columns vertically
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .svago-room-card-v2 {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+
+    .svago-room-v2-img-wrapper {
+        height: 380px;
+    }
+
+    .svago-rate-plan-card-v2 {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .svago-plan-v2-center {
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .svago-step2-top-bar {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .svago-top-bar-left,
+    .svago-top-bar-right {
+        text-align: center;
+    }
+
+    .svago-top-bar-center {
+        flex-wrap: wrap;
+    }
+
+    .svago-selected-room-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+}
+
+/* ==========================================================================
+   STEP 3: Guest Information Screen (Matches Step 1 & 2 Luxury Design)
+   ========================================================================== */
+
+.svago-step3-grid {
+    display: grid;
+    grid-template-columns: 63% 37%;
+    gap: 32px;
+    align-items: start;
+    width: 100%;
+}
+
+.svago-step3-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color, #e4e0d7);
+    border-radius: 12px;
+    padding: 36px 32px;
+    box-sizing: border-box;
+}
+
+.svago-step3-title {
+    font-family: var(--font-serif, "Playfair Display", Georgia, serif);
+    font-size: 1.625rem;
+    font-weight: 700;
+    color: var(--text-dark, #18181b);
+    margin: 0 0 8px 0;
+    line-height: 1.25;
+}
+
+.svago-step3-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-muted, #71717a);
+    margin: 0 0 28px 0;
+    line-height: 1.5;
+}
+
+.svago-step3-form-row {
+    margin-bottom: 18px;
+}
+
+.svago-step3-row-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.svago-step3-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.svago-step3-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-dark, #18181b);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.svago-step3-req {
+    color: #dc2626;
+}
+
+.svago-step3-input,
+.svago-step3-select,
+.svago-step3-textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #d4cfc5;
+    border-radius: 6px;
+    font-size: 0.9375rem;
+    color: var(--text-dark, #18181b);
+    background-color: #ffffff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.svago-step3-input:focus,
+.svago-step3-select:focus,
+.svago-step3-textarea:focus {
+    outline: none;
+    border-color: #18181b;
+    box-shadow: 0 0 0 2px rgba(24, 24, 27, 0.1);
+}
+
+.svago-step3-phone-wrapper {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.svago-step3-phone-country {
+    max-width: 135px;
+    flex-shrink: 0;
+}
+
+.svago-step3-phone-number {
+    flex: 1;
+}
+
+.svago-step3-textarea {
+    resize: vertical;
+    min-height: 85px;
+}
+
+/* Step 3 Form Validation & Field Highlighting */
+.svago-step3-input.svago-input-error,
+.svago-step3-select.svago-input-error,
+.svago-step3-textarea.svago-input-error {
+    border-color: #dc2626 !important;
+    background-color: #fef2f2 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
+}
+
+.svago-step3-phone-wrapper.svago-input-error {
+    border-radius: 6px;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
+}
+.svago-step3-phone-wrapper.svago-input-error .svago-step3-phone-number,
+.svago-step3-phone-wrapper.svago-input-error .svago-step3-phone-country {
+    border-color: #dc2626 !important;
+    background-color: #fef2f2 !important;
+}
+
+.svago-step3-field-group .svago-field-error {
+    display: none;
+    color: #dc2626;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    margin-top: 6px;
+    line-height: 1.35;
+}
+
+.svago-step3-field-group.has-error .svago-field-error {
+    display: block !important;
+}
+
+/* Step 3 Form Alert Banner */
+.svago-form-alert {
+    padding: 13px 18px;
+    margin-bottom: 22px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.45;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.svago-form-alert-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+.svago-form-alert-error::before {
+    content: "⚠️";
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.svago-step3-consent-row {
+    margin: 20px 0 28px 0;
+    padding-top: 14px;
+    border-top: 1px solid #f0ede6;
+}
+
+.svago-step3-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: #4b5563;
+    line-height: 1.45;
+    cursor: pointer;
+}
+
+.svago-step3-checkbox-label input[type="checkbox"] {
+    margin-top: 3px;
+    accent-color: #18181b;
+    width: 16px;
+    height: 16px;
+}
+
+.svago-step3-cta-section {
+    margin-top: 24px;
+}
+
+.svago-step3-submit-btn {
+    width: 100%;
+    padding: 16px 28px;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Step 3 Sidebar Stay Summary */
+.svago-step3-summary-title {
+    font-family: var(--font-serif, "Playfair Display", Georgia, serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark, #18181b);
+    margin: 0 0 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ede8df;
+}
+
+.svago-step3-room-img-wrapper {
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    background-color: #f4f1ea;
+}
+
+.svago-step3-room-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.svago-step3-room-details {
+    margin-bottom: 20px;
+}
+
+.svago-step3-room-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-dark, #18181b);
+    margin: 0 0 6px 0;
+}
+
+.svago-step3-type-tag {
+    display: inline-block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #4b5563;
+    background: #f4f1ea;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 6px;
+}
+
+.svago-step3-rate-badge {
+    display: inline-block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #047857;
+    background: #ecfdf5;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.svago-step3-dates-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fbf9f4;
+    border: 1px solid #ede8df;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 18px;
+}
+
+.svago-step3-date-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.svago-step3-date-sub {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-muted, #71717a);
+    letter-spacing: 0.05em;
+}
+
+.svago-step3-date-val {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-dark, #18181b);
+}
+
+.svago-step3-date-time {
+    font-size: 0.75rem;
+    color: #71717a;
+}
+
+.svago-step3-date-sep {
+    font-size: 1.125rem;
+    color: #a1a1aa;
+    padding: 0 6px;
+}
+
+.svago-step3-meta-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #ede8df;
+    font-size: 0.875rem;
+}
+
+.svago-step3-meta-row {
+    display: flex;
+    justify-content: space-between;
+    color: #4b5563;
+}
+
+.svago-step3-meta-val {
+    color: var(--text-dark, #18181b);
+}
+
+.svago-step3-pricing-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.875rem;
+    margin-bottom: 16px;
+}
+
+.svago-step3-price-line {
+    display: flex;
+    justify-content: space-between;
+    color: #4b5563;
+}
+
+.svago-step3-tag-incl {
+    color: #047857;
+    font-weight: 600;
+}
+
+.svago-step3-price-div {
+    height: 1px;
+    background: #ede8df;
+    margin: 6px 0;
+}
+
+.svago-step3-total-line {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--text-dark, #18181b);
+}
+
+.svago-step3-total-val {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-dark, #18181b);
+}
+
+.svago-step3-guarantee-note {
+    font-size: 0.75rem;
+    color: #71717a;
+    text-align: center;
+    line-height: 1.4;
+    padding-top: 10px;
+    border-top: 1px dashed #e4e0d7;
+}
+
+@media (max-width: 768px) {
+    .svago-step3-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .svago-step3-row-2col {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .svago-step3-card {
+        padding: 24px 20px;
+    }
+}
+
+
+
+

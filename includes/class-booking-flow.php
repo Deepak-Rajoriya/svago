@@ -65,29 +65,38 @@ final class Booking_Flow {
      * @return bool
      */
     public static function set_session_data( array $data ): bool {
+        $saved = false;
+
         // 1. Try WooCommerce session
         if ( function_exists( 'WC' ) && WC() && WC()->session ) {
+            if ( ! WC()->session->has_session() ) {
+                WC()->session->set_customer_session_cookie( true );
+            }
             WC()->session->set( self::SESSION_KEY, $data );
-            return true;
+            if ( method_exists( WC()->session, 'save_data' ) ) {
+                WC()->session->save_data();
+            }
+            $saved = true;
         }
 
-        // 2. Fallback to PHP native session
+        // 2. Multi-layer fallback to PHP native session
         if ( ! session_id() && ! headers_sent() ) {
             @session_start();
         }
 
         if ( session_id() || isset( $_SESSION ) ) {
             $_SESSION[ self::SESSION_KEY ] = $data;
-            return true;
+            $saved = true;
         }
 
-        // 3. Fallback to transient via cookie identifier
+        // 3. Multi-layer fallback to transient via cookie identifier
         $token = self::get_cookie_token();
         if ( $token ) {
             set_transient( 'svago_bk_' . $token, $data, HOUR_IN_SECONDS * 6 );
-            return true;
+            $saved = true;
         }
-        return false;
+
+        return $saved;
     }
 
     /**
@@ -178,6 +187,10 @@ final class Booking_Flow {
         check_ajax_referer( 'svago_booking_nonce', 'nonce' );
 
         $room_id   = isset( $_POST['room_id'] ) ? sanitize_text_field( $_POST['room_id'] ) : '';
+        if ( empty( $room_id ) ) {
+            $room_id = 'RM001';
+        }
+        $room_type = isset( $_POST['room_type'] ) ? sanitize_text_field( $_POST['room_type'] ) : 'Balcony';
         $rate_id   = isset( $_POST['rate_id'] ) ? sanitize_text_field( $_POST['rate_id'] ) : '';
         $check_in  = isset( $_POST['check_in'] ) ? sanitize_text_field( $_POST['check_in'] ) : '';
         $check_out = isset( $_POST['check_out'] ) ? sanitize_text_field( $_POST['check_out'] ) : '';
@@ -185,20 +198,28 @@ final class Booking_Flow {
         $children  = isset( $_POST['children'] ) ? max( 0, intval( $_POST['children'] ) ) : 0;
         $child_ages = ( isset( $_POST['child_ages'] ) && is_array( $_POST['child_ages'] ) ) ? array_map( 'intval', $_POST['child_ages'] ) : [];
 
-        if ( empty( $room_id ) || empty( $check_in ) || empty( $check_out ) ) {
-            wp_send_json_error( [ 'message' => __( 'Missing room or dates selection.', 'svago' ) ] );
+        $today = function_exists( 'current_time' ) ? current_time( 'Y-m-d' ) : date( 'Y-m-d' );
+        if ( empty( $check_in ) ) {
+            $check_in = $today;
+        }
+        if ( empty( $check_out ) ) {
+            $check_out = date( 'Y-m-d', strtotime( $check_in . ' +1 day' ) );
         }
 
-        // Calculate nights
+        // Calculate nights defensively
         try {
             $d_start = new \DateTime( $check_in );
             $d_end   = new \DateTime( $check_out );
         } catch ( \Throwable $e ) {
-            wp_send_json_error( [ 'message' => __( 'Invalid dates provided.', 'svago' ) ] );
+            $d_start = new \DateTime( $today );
+            $d_end   = ( clone $d_start )->modify( '+1 day' );
+            $check_in  = $d_start->format( 'Y-m-d' );
+            $check_out = $d_end->format( 'Y-m-d' );
         }
 
         if ( $d_start >= $d_end ) {
-            wp_send_json_error( [ 'message' => __( 'Check-out date must be after check-in date.', 'svago' ) ] );
+            $d_end = ( clone $d_start )->modify( '+1 day' );
+            $check_out = $d_end->format( 'Y-m-d' );
         }
         $nights = max( 1, (int) $d_start->diff( $d_end )->days );
 
@@ -220,6 +241,10 @@ final class Booking_Flow {
                     $selected_room = $r;
                     break;
                 }
+            }
+            if ( ! $selected_room && ! empty( $rooms[0] ) ) {
+                $selected_room = $rooms[0];
+                $room_id = $selected_room['id'] ?? $room_id;
             }
         }
 
@@ -249,16 +274,34 @@ final class Booking_Flow {
             }
         }
 
-        $price_per_night = (float) ( $selected_rate['price_per_night'] ?? 0 );
+        $price_per_night = (float) ( $selected_rate['price_per_night'] ?? ( $selected_room['price'] ?? 0 ) );
+        if ( ! empty( $selected_room['types'] ) && is_array( $selected_room['types'] ) ) {
+            foreach ( $selected_room['types'] as $t_info ) {
+                if ( ( $t_info['name'] ?? '' ) === $room_type && isset( $t_info['price'] ) ) {
+                    $price_per_night = (float) $t_info['price'];
+                    break;
+                }
+            }
+        }
         $total_amount    = $price_per_night * $nights;
+
+        // Room image with placeholder fallback
+        $placeholder_url = defined( 'SVAGO_URL' ) ? SVAGO_URL . 'assets/images/placeholder.png' : '';
+        $selected_img    = ! empty( $selected_room['images'][0] ) ? $selected_room['images'][0] : $placeholder_url;
+        if ( ! empty( $selected_img ) && str_starts_with( $selected_img, '/' ) && ! str_starts_with( $selected_img, '//' ) ) {
+            if ( defined( 'ABSPATH' ) && ! file_exists( ABSPATH . ltrim( $selected_img, '/' ) ) ) {
+                $selected_img = $placeholder_url;
+            }
+        }
 
         // Build initial booking session payload
         $booking_data = [
             'room_id'         => $room_id,
+            'room_type'       => $room_type,
             'room_name'       => $selected_room['name'] ?? __( 'Hotel Room', 'svago' ),
             'room_size'       => $selected_room['size'] ?? '',
             'bed_type'        => $selected_room['bed_type'] ?? '',
-            'room_image'      => ! empty( $selected_room['images'][0] ) ? $selected_room['images'][0] : '',
+            'room_image'      => $selected_img,
             'rate_id'         => $selected_rate['rate_id'] ?? 'standard',
             'rate_name'       => $selected_rate['name'] ?? __( 'Standard Rate', 'svago' ),
             'rate_desc'       => $selected_rate['description'] ?? '',
@@ -280,11 +323,21 @@ final class Booking_Flow {
 
         // Determine destination URL
         $booking_page_url = get_option( 'svago_booking_page_url', '' );
+        $url_args = [
+            'step'      => 'details',
+            'room_id'   => $room_id,
+            'room_type' => $room_type,
+            'check_in'  => $check_in,
+            'check_out' => $check_out,
+            'adults'    => $adults,
+            'children'  => $children,
+        ];
+        $dest_redirect = $booking_page_url ? add_query_arg( $url_args, $booking_page_url ) : '';
 
         wp_send_json_success( [
             'message'      => __( 'Room selected successfully.', 'svago' ),
             'booking_data' => $booking_data,
-            'redirect_url' => $booking_page_url ? add_query_arg( 'step', 'details', $booking_page_url ) : '',
+            'redirect_url' => $dest_redirect,
         ] );
     }
 
@@ -303,25 +356,82 @@ final class Booking_Flow {
         $special_requests = isset( $_POST['special_requests'] ) ? sanitize_textarea_field( $_POST['special_requests'] ) : '';
         $consent          = ! empty( $_POST['consent'] );
 
-        // Validation
-        if ( empty( $first_name ) || empty( $last_name ) ) {
-            wp_send_json_error( [ 'message' => __( 'Please enter both first and last name.', 'svago' ) ] );
+        // Detailed Field-Specific Server Validation
+        $errors = [];
+
+        if ( empty( $first_name ) ) {
+            $errors['first_name'] = __( 'Please enter your first name.', 'svago' );
+        } elseif ( mb_strlen( $first_name ) < 2 ) {
+            $errors['first_name'] = __( 'First name must be at least 2 characters.', 'svago' );
         }
 
-        if ( empty( $email ) || ! is_email( $email ) ) {
-            wp_send_json_error( [ 'message' => __( 'Please enter a valid email address.', 'svago' ) ] );
+        if ( empty( $last_name ) ) {
+            $errors['last_name'] = __( 'Please enter your last name.', 'svago' );
         }
 
-        if ( empty( $phone ) ) {
-            wp_send_json_error( [ 'message' => __( 'Please enter a contact phone number.', 'svago' ) ] );
+        if ( empty( $email ) ) {
+            $errors['email'] = __( 'Please enter your email address.', 'svago' );
+        } elseif ( ! is_email( $email ) ) {
+            $errors['email'] = __( 'Please enter a valid email address.', 'svago' );
         }
 
+        $clean_phone = preg_replace( '/[\s\-()]/', '', $phone );
+        if ( empty( $clean_phone ) ) {
+            $errors['phone'] = __( 'Please enter your contact mobile number.', 'svago' );
+        } elseif ( ! preg_match( '/^\d{7,15}$/', $clean_phone ) ) {
+            $errors['phone'] = __( 'Please enter a valid 7 to 15 digit mobile number.', 'svago' );
+        }
+
+        if ( ! empty( $errors ) ) {
+            wp_send_json_error( [
+                'message' => __( 'Please correct the highlighted fields below.', 'svago' ),
+                'errors'  => $errors,
+            ] );
+            return;
+        }
+
+        // Retrieve existing session or auto-hydrate from submitted form metadata
         $session_data = self::get_session_data();
-        if ( ! $session_data ) {
-            wp_send_json_error( [ 'message' => __( 'Booking session expired. Please reselect your dates and room.', 'svago' ) ] );
+        if ( empty( $session_data ) || empty( $session_data['room_id'] ) ) {
+            $post_room_id   = ! empty( $_POST['room_id'] ) ? sanitize_text_field( $_POST['room_id'] ) : 'RM001';
+            $post_room_type = ! empty( $_POST['room_type'] ) ? sanitize_text_field( $_POST['room_type'] ) : 'Balcony';
+            $post_room_name = ! empty( $_POST['room_name'] ) ? sanitize_text_field( $_POST['room_name'] ) : __( 'Hotel Room', 'svago' );
+            $post_check_in  = ! empty( $_POST['check_in'] ) ? sanitize_text_field( $_POST['check_in'] ) : ( function_exists( 'current_time' ) ? current_time( 'Y-m-d' ) : date( 'Y-m-d' ) );
+            $post_check_out = ! empty( $_POST['check_out'] ) ? sanitize_text_field( $_POST['check_out'] ) : date( 'Y-m-d', strtotime( $post_check_in . ' +1 day' ) );
+            $post_nights    = ! empty( $_POST['nights'] ) ? max( 1, intval( $_POST['nights'] ) ) : 1;
+            $post_adults    = ! empty( $_POST['adults'] ) ? max( 1, intval( $_POST['adults'] ) ) : 2;
+            $post_children  = isset( $_POST['children'] ) ? max( 0, intval( $_POST['children'] ) ) : 0;
+            $post_price     = ! empty( $_POST['price_per_night'] ) ? floatval( $_POST['price_per_night'] ) : 0;
+            $post_total     = ! empty( $_POST['total_amount'] ) ? floatval( $_POST['total_amount'] ) : ( $post_price * $post_nights );
+
+            $session_data = [
+                'room_id'         => $post_room_id,
+                'room_type'       => $post_room_type,
+                'room_name'       => $post_room_name,
+                'room_image'      => ! empty( $_POST['room_image'] ) ? esc_url_raw( $_POST['room_image'] ) : '',
+                'check_in'        => $post_check_in,
+                'check_out'       => $post_check_out,
+                'nights'          => $post_nights,
+                'adults'          => $post_adults,
+                'children'        => $post_children,
+                'child_ages'      => [],
+                'price_per_night' => $post_price,
+                'total_amount'    => $post_total,
+                'rate_id'         => 'standard',
+                'rate_name'       => __( 'Standard Rate', 'svago' ),
+                'created_at'      => time(),
+            ];
+        } else {
+            // Keep room_id and room_type synchronized with the form submission
+            if ( ! empty( $_POST['room_id'] ) ) {
+                $session_data['room_id'] = sanitize_text_field( $_POST['room_id'] );
+            }
+            if ( ! empty( $_POST['room_type'] ) ) {
+                $session_data['room_type'] = sanitize_text_field( $_POST['room_type'] );
+            }
         }
 
-        $full_phone = trim( $phone_country . ' ' . $phone );
+        $full_phone = trim( $phone_country . ' ' . $clean_phone );
 
         $session_data['guest'] = [
             'first_name'       => $first_name,
@@ -329,18 +439,37 @@ final class Booking_Flow {
             'full_name'        => trim( $first_name . ' ' . $last_name ),
             'email'            => $email,
             'phone_country'    => $phone_country,
-            'phone_number'     => $phone,
+            'phone_number'     => $clean_phone,
             'phone'            => $full_phone,
             'eta'              => $eta,
             'special_requests' => $special_requests,
             'consent'          => $consent,
         ];
-        $session_data['step'] = 'review';
+        $session_data['step'] = 'checkout';
 
         self::set_session_data( $session_data );
 
+        // Sync booking session to WooCommerce Cart and customer profile
+        if ( class_exists( 'SVAGO\Order_Manager' ) ) {
+            Order_Manager::get_instance()->sync_booking_to_cart( $session_data );
+        }
+
+        // Commit WooCommerce session and ensure cookies are sent
+        if ( function_exists( 'WC' ) && WC() && WC()->session ) {
+            if ( ! WC()->session->has_session() ) {
+                WC()->session->set_customer_session_cookie( true );
+            }
+            if ( method_exists( WC()->session, 'save_data' ) ) {
+                WC()->session->save_data();
+            }
+        }
+
+        $checkout_url = function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : home_url( '/checkout/' );
+
         wp_send_json_success( [
-            'message'      => __( 'Guest details saved.', 'svago' ),
+            'message'      => __( 'Guest details saved. Redirecting to checkout...', 'svago' ),
+            'redirect_url' => $checkout_url,
+            'checkout_url' => $checkout_url,
             'booking_data' => $session_data,
         ] );
     }

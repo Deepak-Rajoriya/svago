@@ -264,6 +264,42 @@
             "price": 70854,
             "inventory": 5,
             "blocked": false
+        },
+        "2026-11-17": {
+            "available": true,
+            "price": 70854,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-18": {
+            "available": true,
+            "price": 70854,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-19": {
+            "available": true,
+            "price": 70854,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-20": {
+            "available": true,
+            "price": 70854,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-21": {
+            "available": true,
+            "price": 70854,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-22": {
+            "available": true,
+            "price": 70854,
+            "inventory": 5,
+            "blocked": false
         }
     },
     "RM002": {
@@ -527,6 +563,42 @@
             "blocked": false
         },
         "2026-11-16": {
+            "available": true,
+            "price": 125000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-17": {
+            "available": true,
+            "price": 125000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-18": {
+            "available": true,
+            "price": 125000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-19": {
+            "available": true,
+            "price": 125000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-20": {
+            "available": true,
+            "price": 125000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-21": {
+            "available": true,
+            "price": 125000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-22": {
             "available": true,
             "price": 125000,
             "inventory": 5,
@@ -798,6 +870,42 @@
             "price": 92000,
             "inventory": 5,
             "blocked": false
+        },
+        "2026-11-17": {
+            "available": true,
+            "price": 92000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-18": {
+            "available": true,
+            "price": 92000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-19": {
+            "available": true,
+            "price": 92000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-20": {
+            "available": true,
+            "price": 92000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-21": {
+            "available": true,
+            "price": 92000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-22": {
+            "available": true,
+            "price": 92000,
+            "inventory": 5,
+            "blocked": false
         }
     },
     "RM004": {
@@ -1061,6 +1169,42 @@
             "blocked": false
         },
         "2026-11-16": {
+            "available": true,
+            "price": 145000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-17": {
+            "available": true,
+            "price": 145000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-18": {
+            "available": true,
+            "price": 145000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-19": {
+            "available": true,
+            "price": 145000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-20": {
+            "available": true,
+            "price": 145000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-21": {
+            "available": true,
+            "price": 145000,
+            "inventory": 5,
+            "blocked": false
+        },
+        "2026-11-22": {
             "available": true,
             "price": 145000,
             "inventory": 5,

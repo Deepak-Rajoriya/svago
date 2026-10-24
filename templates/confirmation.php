@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $order_id        = (int) ( $booking_data['order_id'] ?? 0 );
 $room_name       = $booking_data['room_name'] ?? esc_html__( 'Deluxe Room', 'svago' );
+$room_type       = $booking_data['room_type'] ?? '';
 $room_image      = $booking_data['room_image'] ?? '';
 $rate_name       = $booking_data['rate_name'] ?? esc_html__( 'Standard Rate', 'svago' );
 $check_in        = $booking_data['check_in'] ?? '';
@@ -40,30 +41,29 @@ $hotel_address = get_option( 'svago_hotel_address', '123 Ocean Drive, Luxury Bay
 $hotel_map_url = get_option( 'svago_hotel_map_url', 'https://maps.google.com/?q=Hotel+Luxury+Bay' );
 ?>
 
-<div class="svago-booking-wrapper svago-confirmation-container" id="svago-confirmation-view">
+<div class="svago-step2-page-wrapper svago-confirmation-container" id="svago-confirmation-view">
+    <div class="svago-step2-container">
 
-    <!-- Progress Stepper (All 4 Completed) -->
-    <div class="svago-stepper">
-        <div class="svago-step svago-step-completed">
-            <span class="svago-step-num">✓</span>
-            <span class="svago-step-label"><?php esc_html_e( 'Select Room', 'svago' ); ?></span>
-        </div>
-        <div class="svago-step-line svago-step-line-active"></div>
-        <div class="svago-step svago-step-completed">
-            <span class="svago-step-num">✓</span>
-            <span class="svago-step-label"><?php esc_html_e( 'Guest Details', 'svago' ); ?></span>
-        </div>
-        <div class="svago-step-line svago-step-line-active"></div>
-        <div class="svago-step svago-step-completed">
-            <span class="svago-step-num">✓</span>
-            <span class="svago-step-label"><?php esc_html_e( 'Review & Policy', 'svago' ); ?></span>
-        </div>
-        <div class="svago-step-line svago-step-line-active"></div>
-        <div class="svago-step svago-step-completed svago-step-active">
-            <span class="svago-step-num">✓</span>
-            <span class="svago-step-label"><?php esc_html_e( 'Confirmed', 'svago' ); ?></span>
-        </div>
-    </div>
+        <!-- Top Navigation Bar matching new design -->
+        <header class="svago-step2-top-bar" aria-label="<?php esc_attr_e( 'Booking navigation bar', 'svago' ); ?>" style="margin-bottom: 24px;">
+            <div class="svago-top-bar-left">
+                <span style="font-size: 0.8125rem; font-weight: 600; color: #15803d;">✓ <?php esc_html_e( 'COMPLETED', 'svago' ); ?></span>
+            </div>
+
+            <nav class="svago-top-bar-center" aria-label="<?php esc_attr_e( 'Step progress', 'svago' ); ?>">
+                <span class="svago-nav-step svago-nav-inactive"><?php esc_html_e( 'CALENDAR', 'svago' ); ?></span>
+                <span class="svago-nav-sep" aria-hidden="true">&gt;</span>
+                <span class="svago-nav-step svago-nav-inactive"><?php esc_html_e( 'ROOM AND RATE SELECTION', 'svago' ); ?></span>
+                <span class="svago-nav-sep" aria-hidden="true">&gt;</span>
+                <span class="svago-nav-step svago-nav-inactive"><?php esc_html_e( 'GUEST INFO', 'svago' ); ?></span>
+                <span class="svago-nav-sep" aria-hidden="true">&gt;</span>
+                <span class="svago-nav-step svago-nav-active"><?php esc_html_e( 'CONFIRMED', 'svago' ); ?></span>
+            </nav>
+
+            <div class="svago-top-bar-right">
+                <span class="svago-next-steps-text" style="color: #15803d;"><?php esc_html_e( 'DONE ✓', 'svago' ); ?></span>
+            </div>
+        </header>
 
     <!-- Success Banner -->
     <div class="svago-confirmation-hero">
@@ -109,13 +109,24 @@ $hotel_map_url = get_option( 'svago_hotel_map_url', 'https://maps.google.com/?q=
                 </div>
 
                 <div class="svago-review-room-box">
-                    <?php if ( ! empty( $room_image ) ) : ?>
-                        <div class="svago-review-room-thumb">
-                            <img src="<?php echo esc_url( $room_image ); ?>" alt="<?php echo esc_attr( $room_name ); ?>" />
-                        </div>
-                    <?php endif; ?>
+                    <?php 
+                    $placeholder_url = SVAGO_URL . 'assets/images/placeholder.png';
+                    $conf_img        = ! empty( $room_image ) ? $room_image : $placeholder_url;
+                    ?>
+                    <div class="svago-review-room-thumb">
+                        <img 
+                            src="<?php echo esc_url( $conf_img ); ?>" 
+                            alt="<?php echo esc_attr( $room_name ); ?>" 
+                            onerror="this.onerror=null;this.src='<?php echo esc_url( $placeholder_url ); ?>';" 
+                        />
+                    </div>
                     <div class="svago-review-room-text">
                         <h3 class="svago-review-room-title"><?php echo esc_html( $room_name ); ?></h3>
+                        <?php if ( ! empty( $room_type ) ) : ?>
+                            <span class="svago-confirmation-room-type" style="display:inline-block; font-size:0.8125rem; font-weight:600; color:#1e3a8a; background:#eff6ff; padding:2px 8px; border-radius:4px; margin-bottom:4px;">
+                                <?php echo esc_html( sprintf( __( 'Type: %s', 'svago' ), $room_type ) ); ?>
+                            </span>
+                        <?php endif; ?>
                         <div class="svago-review-rate-tag">
                             <strong><?php esc_html_e( 'Selected Plan:', 'svago' ); ?></strong> <?php echo esc_html( $rate_name ); ?>
                         </div>
@@ -288,4 +299,5 @@ $hotel_map_url = get_option( 'svago_hotel_map_url', 'https://maps.google.com/?q=
 
     </div>
 
+</div>
 </div>

@@ -61,6 +61,19 @@ final class Order_Manager {
         add_filter( 'woocommerce_email_recipient_customer_processing_order', [ $this, 'add_hotel_email_recipient' ], 10, 2 );
         add_filter( 'woocommerce_email_recipient_customer_completed_order', [ $this, 'add_hotel_email_recipient' ], 10, 2 );
 
+        // WooCommerce Checkout Integration: Pre-fill guest info, Order Summary booking metadata & hotel policies
+        add_filter( 'woocommerce_checkout_get_value', [ $this, 'prefill_checkout_field' ], 10, 2 );
+        add_filter( 'woocommerce_get_item_data', [ $this, 'render_booking_item_data' ], 10, 2 );
+        add_action( 'woocommerce_before_calculate_totals', [ $this, 'set_booking_cart_item_price' ], 20, 1 );
+        add_action( 'woocommerce_review_order_before_payment', [ $this, 'render_checkout_hotel_policies' ] );
+        add_action( 'woocommerce_checkout_update_order_meta', [ $this, 'save_checkout_booking_meta' ], 10, 2 );
+        add_action( 'woocommerce_checkout_create_order_line_item', [ $this, 'save_line_item_booking_meta' ], 10, 4 );
+
+        // Direct Checkout Flow: Skip WooCommerce Cart page entirely (Requirement 3)
+        add_action( 'template_redirect', [ $this, 'skip_cart_redirect_to_checkout' ] );
+        add_filter( 'woocommerce_add_to_cart_redirect', [ $this, 'direct_checkout_redirect' ] );
+        add_filter( 'wc_add_to_cart_message_html', '__return_empty_string' );
+
         // Phase 6: WooCommerce Orders list custom columns & filters (Task 6.3)
         add_filter( 'manage_shop_order_posts_columns', [ $this, 'register_order_columns' ] );
         add_filter( 'woocommerce_shop_order_list_table_columns', [ $this, 'register_order_columns' ] );
@@ -86,6 +99,7 @@ final class Order_Manager {
     public function create_booking_order( array $session_data ) {
         $room_id         = sanitize_text_field( $session_data['room_id'] ?? '' );
         $room_name       = sanitize_text_field( $session_data['room_name'] ?? __( 'Hotel Room', 'svago' ) );
+        $room_type       = sanitize_text_field( $session_data['room_type'] ?? 'Balcony' );
         $rate_id         = sanitize_text_field( $session_data['rate_id'] ?? 'standard' );
         $rate_name       = sanitize_text_field( $session_data['rate_name'] ?? __( 'Standard Rate', 'svago' ) );
         $check_in        = sanitize_text_field( $session_data['check_in'] ?? '' );
@@ -141,6 +155,7 @@ final class Order_Manager {
                 // Store Custom Booking Meta
                 $order->update_meta_data( '_booking_room_id', $room_id );
                 $order->update_meta_data( '_booking_room_name', $room_name );
+                $order->update_meta_data( '_booking_room_type', $room_type );
                 $order->update_meta_data( '_booking_rate_id', $rate_id );
                 $order->update_meta_data( '_booking_rate_name', $rate_name );
                 $order->update_meta_data( '_booking_check_in', $check_in );
@@ -198,6 +213,7 @@ final class Order_Manager {
 
             update_post_meta( $order_id, '_booking_room_id', $room_id );
             update_post_meta( $order_id, '_booking_room_name', $room_name );
+            update_post_meta( $order_id, '_booking_room_type', $room_type );
             update_post_meta( $order_id, '_booking_rate_id', $rate_id );
             update_post_meta( $order_id, '_booking_rate_name', $rate_name );
             update_post_meta( $order_id, '_booking_check_in', $check_in );
@@ -295,11 +311,47 @@ final class Order_Manager {
 
         $total_amount = (float) ( $session_data['total_amount'] ?? 0 );
         $guest        = $session_data['guest'] ?? [];
-
-        // Razorpay checkout configuration (Task 4.2)
-        $razorpay_key = get_option( 'svago_razorpay_key_id', '' );
         $currency     = function_exists( 'get_woocommerce_currency' ) ? get_woocommerce_currency() : 'INR';
         $hotel_name   = get_bloginfo( 'name' );
+
+        // Determine destination WooCommerce checkout URL
+        $checkout_url = '';
+        if ( is_numeric( $order_id ) && $order_id > 0 ) {
+            if ( function_exists( 'wc_get_order' ) ) {
+                $wc_order = wc_get_order( $order_id );
+                if ( $wc_order && method_exists( $wc_order, 'get_checkout_payment_url' ) ) {
+                    $checkout_url = $wc_order->get_checkout_payment_url();
+                }
+            }
+        }
+        if ( empty( $checkout_url ) && function_exists( 'wc_get_checkout_url' ) ) {
+            $checkout_url = wc_get_checkout_url();
+        }
+        if ( empty( $checkout_url ) ) {
+            $checkout_url = home_url( '/checkout/' );
+        }
+
+        // If WooCommerce cart is active, synchronize booking item into cart as well
+        if ( function_exists( 'WC' ) && WC() && WC()->cart ) {
+            try {
+                WC()->cart->empty_cart();
+                $product_id = $this->find_product_by_room_id( $room_id );
+                if ( $product_id ) {
+                    WC()->cart->add_to_cart( $product_id, 1, 0, [], [
+                        'booking_room_id'   => $room_id,
+                        'booking_room_name' => $session_data['room_name'] ?? '',
+                        'booking_room_type' => $session_data['room_type'] ?? 'Balcony',
+                        'booking_check_in'  => $check_in,
+                        'booking_check_out' => $check_out,
+                        'booking_nights'    => $session_data['nights'] ?? 1,
+                        'booking_adults'    => $session_data['adults'] ?? 2,
+                        'booking_children'  => $session_data['children'] ?? 0,
+                    ] );
+                }
+            } catch ( \Throwable $e ) {
+                // Ignore cart sync errors
+            }
+        }
 
         // Determine destination confirmation URL
         $booking_page_url = get_option( 'svago_booking_page_url', '' );
@@ -307,10 +359,11 @@ final class Order_Manager {
 
         wp_send_json_success( [
             'order_id'         => $order_id,
+            'checkout_url'     => $checkout_url,
+            'redirect_url'     => $checkout_url,
             'amount_in_paise'  => (int) round( $total_amount * 100 ),
             'amount_formatted' => number_format( $total_amount, 2 ),
             'currency'         => $currency,
-            'razorpay_key'     => $razorpay_key,
             'hotel_name'       => $hotel_name,
             'guest_name'       => $guest['full_name'] ?? ( ( $guest['first_name'] ?? '' ) . ' ' . ( $guest['last_name'] ?? '' ) ),
             'guest_email'      => $guest['email'] ?? '',
@@ -1045,6 +1098,351 @@ final class Order_Manager {
                 [ 'order_id' => $order_id, 'error' => $e->getMessage() ]
             );
         }
+    }
+
+    /**
+     * Synchronize booking session data into WooCommerce Cart and Customer profile (Task Requirement 3 & 4)
+     *
+     * @param array $session_data
+     * @return bool
+     */
+    public function sync_booking_to_cart( array $session_data ): bool {
+        if ( ! function_exists( 'WC' ) || ! WC() ) {
+            return false;
+        }
+
+        try {
+            $room_id         = sanitize_text_field( $session_data['room_id'] ?? '' );
+            $room_name       = sanitize_text_field( $session_data['room_name'] ?? __( 'Hotel Room', 'svago' ) );
+            $room_type       = sanitize_text_field( $session_data['room_type'] ?? 'Balcony' );
+            $check_in        = sanitize_text_field( $session_data['check_in'] ?? '' );
+            $check_out       = sanitize_text_field( $session_data['check_out'] ?? '' );
+            $nights          = max( 1, (int) ( $session_data['nights'] ?? 1 ) );
+            $adults          = max( 1, (int) ( $session_data['adults'] ?? 2 ) );
+            $children        = max( 0, (int) ( $session_data['children'] ?? 0 ) );
+            $total_amount    = (float) ( $session_data['total_amount'] ?? 0 );
+            $guest           = $session_data['guest'] ?? [];
+
+            if ( WC()->cart ) {
+                WC()->cart->empty_cart();
+
+                $product_id = $this->find_product_by_room_id( $room_id );
+                if ( ! $product_id && class_exists( 'SVAGO\Product_Seeder' ) ) {
+                    $seeder = new Product_Seeder();
+                    $seeder->seed_products();
+                    $product_id = $this->find_product_by_room_id( $room_id );
+                }
+                if ( ! $product_id ) {
+                    $product_id = (int) apply_filters( 'svago_default_booking_product_id', 1, $room_id );
+                }
+
+                if ( $product_id ) {
+                    $cart_item_data = [
+                        'booking_room_id'   => $room_id,
+                        'booking_room_name' => $room_name,
+                        'booking_room_type' => $room_type,
+                        'booking_check_in'  => $check_in,
+                        'booking_check_out' => $check_out,
+                        'booking_nights'    => $nights,
+                        'booking_adults'    => $adults,
+                        'booking_children'  => $children,
+                        'booking_guest'     => $guest,
+                        'custom_price'      => $total_amount,
+                    ];
+
+                    WC()->cart->add_to_cart( $product_id, 1, 0, [], $cart_item_data );
+                }
+            }
+
+            // Pre-fill WooCommerce Customer Profile in Session
+            if ( WC()->customer ) {
+                $first_name = $guest['first_name'] ?? '';
+                $last_name  = $guest['last_name'] ?? '';
+                $email      = $guest['email'] ?? '';
+                $phone      = $guest['phone'] ?? ( ( $guest['phone_country'] ?? '' ) . ' ' . ( $guest['phone_number'] ?? '' ) );
+
+                if ( ! empty( $first_name ) ) {
+                    WC()->customer->set_billing_first_name( $first_name );
+                    WC()->customer->set_shipping_first_name( $first_name );
+                }
+                if ( ! empty( $last_name ) ) {
+                    WC()->customer->set_billing_last_name( $last_name );
+                    WC()->customer->set_shipping_last_name( $last_name );
+                }
+                if ( ! empty( $email ) ) {
+                    WC()->customer->set_billing_email( $email );
+                }
+                if ( ! empty( $phone ) ) {
+                    WC()->customer->set_billing_phone( trim( (string) $phone ) );
+                }
+                WC()->customer->save();
+            }
+
+            return true;
+        } catch ( \Throwable $e ) {
+            Logger::get_instance()->log( 'warning', 'Failed syncing booking to cart: ' . $e->getMessage() );
+            return false;
+        }
+    }
+
+    /**
+     * Pre-populate WooCommerce Checkout billing and shipping fields with guest information (Task Requirement 4)
+     *
+     * @param mixed  $value Existing field value
+     * @param string $input Field name
+     * @return mixed
+     */
+    public function prefill_checkout_field( $value, $input ) {
+        if ( ! empty( $value ) ) {
+            return $value;
+        }
+
+        $session_data = Booking_Flow::get_session_data();
+        $guest        = $session_data['guest'] ?? [];
+        if ( empty( $guest ) ) {
+            return $value;
+        }
+
+        switch ( $input ) {
+            case 'billing_first_name':
+            case 'shipping_first_name':
+                return $guest['first_name'] ?? $value;
+
+            case 'billing_last_name':
+            case 'shipping_last_name':
+                return $guest['last_name'] ?? $value;
+
+            case 'billing_email':
+                return $guest['email'] ?? $value;
+
+            case 'billing_phone':
+                $phone = $guest['phone'] ?? ( ( $guest['phone_country'] ?? '' ) . ' ' . ( $guest['phone_number'] ?? '' ) );
+                return ! empty( $phone ) ? trim( (string) $phone ) : $value;
+
+            case 'order_comments':
+                $notes = [];
+                if ( ! empty( $guest['eta'] ) ) {
+                    $notes[] = sprintf( __( 'Estimated Arrival Time (ETA): %s', 'svago' ), $guest['eta'] );
+                }
+                if ( ! empty( $guest['special_requests'] ) ) {
+                    $notes[] = sprintf( __( 'Special Requests: %s', 'svago' ), $guest['special_requests'] );
+                }
+                if ( ! empty( $session_data['room_type'] ) ) {
+                    $notes[] = sprintf( __( 'Selected Room Type: %s', 'svago' ), $session_data['room_type'] );
+                }
+                return ! empty( $notes ) ? implode( "\n", $notes ) : $value;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Set dynamic calculated price on booking cart items in WooCommerce
+     *
+     * @param \WC_Cart $cart
+     */
+    public function set_booking_cart_item_price( $cart ): void {
+        if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
+            return;
+        }
+        if ( did_action( 'woocommerce_before_calculate_totals' ) >= 2 ) {
+            return;
+        }
+        if ( ! $cart || ! method_exists( $cart, 'get_cart' ) ) {
+            return;
+        }
+
+        foreach ( $cart->get_cart() as $cart_item ) {
+            if ( isset( $cart_item['custom_price'] ) && is_numeric( $cart_item['custom_price'] ) ) {
+                $cart_item['data']->set_price( (float) $cart_item['custom_price'] );
+            }
+        }
+    }
+
+    /**
+     * Display booking information (Room, Type, Dates, Guests, Nights) in WooCommerce Order Summary (Task Requirement 3)
+     *
+     * @param array $item_data
+     * @param array $cart_item
+     * @return array
+     */
+    public function render_booking_item_data( array $item_data, array $cart_item ): array {
+        if ( ! empty( $cart_item['booking_room_type'] ) ) {
+            $item_data[] = [
+                'name'  => __( 'Room Type', 'svago' ),
+                'value' => esc_html( $cart_item['booking_room_type'] ),
+            ];
+        }
+        if ( ! empty( $cart_item['booking_check_in'] ) ) {
+            $in_fmt = function_exists( 'date_i18n' ) ? date_i18n( 'D, M j, Y', strtotime( $cart_item['booking_check_in'] ) ) : date( 'D, M j, Y', strtotime( $cart_item['booking_check_in'] ) );
+            $item_data[] = [
+                'name'  => __( 'Check-in', 'svago' ),
+                'value' => esc_html( $in_fmt . ' (From 2:00 PM)' ),
+            ];
+        }
+        if ( ! empty( $cart_item['booking_check_out'] ) ) {
+            $out_fmt = function_exists( 'date_i18n' ) ? date_i18n( 'D, M j, Y', strtotime( $cart_item['booking_check_out'] ) ) : date( 'D, M j, Y', strtotime( $cart_item['booking_check_out'] ) );
+            $item_data[] = [
+                'name'  => __( 'Check-out', 'svago' ),
+                'value' => esc_html( $out_fmt . ' (Until 11:00 AM)' ),
+            ];
+        }
+        if ( ! empty( $cart_item['booking_nights'] ) ) {
+            $nights = (int) $cart_item['booking_nights'];
+            $item_data[] = [
+                'name'  => __( 'Duration', 'svago' ),
+                'value' => esc_html( sprintf( _n( '%d night', '%d nights', $nights, 'svago' ), $nights ) ),
+            ];
+        }
+        if ( ! empty( $cart_item['booking_adults'] ) ) {
+            $adults   = (int) $cart_item['booking_adults'];
+            $children = (int) ( $cart_item['booking_children'] ?? 0 );
+            $g_text   = sprintf( _n( '%d Adult', '%d Adults', $adults, 'svago' ), $adults );
+            if ( $children > 0 ) {
+                $g_text .= ', ' . sprintf( _n( '%d Child', '%d Children', $children, 'svago' ), $children );
+            }
+            $item_data[] = [
+                'name'  => __( 'Guests', 'svago' ),
+                'value' => esc_html( $g_text ),
+            ];
+        }
+
+        return $item_data;
+    }
+
+    /**
+     * Render Cancellation & Hotel Policies box on the WooCommerce Checkout page (Task Requirement 3)
+     */
+    public function render_checkout_hotel_policies(): void {
+        ?>
+        <div class="svago-wc-checkout-policies" style="margin: 24px 0 20px 0; padding: 20px 22px; background: #fbf9f4; border: 1px solid #e4e0d7; border-radius: 8px; font-size: 0.875rem; color: #18181b;">
+            <h4 style="margin: 0 0 12px 0; font-size: 0.9375rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #18181b;">
+                📋 <?php esc_html_e( 'Cancellation & Hotel Policies', 'svago' ); ?>
+            </h4>
+            <ul style="margin: 0; padding-left: 18px; line-height: 1.6; color: #4b5563;">
+                <li><strong><?php esc_html_e( 'Free Cancellation:', 'svago' ); ?></strong> <?php esc_html_e( 'Cancel free of charge up to 48 hours prior to check-in (2:00 PM).', 'svago' ); ?></li>
+                <li><strong><?php esc_html_e( 'Late Cancellation / No-Show:', 'svago' ); ?></strong> <?php esc_html_e( 'Cancellations within 48 hours or failure to arrive will be charged the first night.', 'svago' ); ?></li>
+                <li><strong><?php esc_html_e( 'Check-in / Check-out:', 'svago' ); ?></strong> <?php esc_html_e( 'Check-in begins at 2:00 PM. Check-out time is 11:00 AM.', 'svago' ); ?></li>
+                <li><strong><?php esc_html_e( 'Government Photo ID:', 'svago' ); ?></strong> <?php esc_html_e( 'Valid government-issued photo ID (Passport, Aadhar, Driving License) is required for all adult guests.', 'svago' ); ?></li>
+            </ul>
+        </div>
+        <?php
+    }
+
+    /**
+     * Save booking metadata to WooCommerce order upon checkout completion
+     *
+     * @param int   $order_id
+     * @param array $data
+     */
+    public function save_checkout_booking_meta( $order_id, $data = null ): void {
+        $session_data = Booking_Flow::get_session_data();
+        if ( empty( $session_data ) ) {
+            return;
+        }
+
+        $room_id         = sanitize_text_field( $session_data['room_id'] ?? '' );
+        $room_name       = sanitize_text_field( $session_data['room_name'] ?? '' );
+        $room_type       = sanitize_text_field( $session_data['room_type'] ?? 'Balcony' );
+        $check_in        = sanitize_text_field( $session_data['check_in'] ?? '' );
+        $check_out       = sanitize_text_field( $session_data['check_out'] ?? '' );
+        $nights          = max( 1, (int) ( $session_data['nights'] ?? 1 ) );
+        $adults          = max( 1, (int) ( $session_data['adults'] ?? 2 ) );
+        $children        = max( 0, (int) ( $session_data['children'] ?? 0 ) );
+        $total_amount    = (float) ( $session_data['total_amount'] ?? 0 );
+        $guest           = $session_data['guest'] ?? [];
+
+        update_post_meta( $order_id, '_booking_room_id', $room_id );
+        update_post_meta( $order_id, '_booking_room_name', $room_name );
+        update_post_meta( $order_id, '_booking_room_type', $room_type );
+        update_post_meta( $order_id, '_booking_check_in', $check_in );
+        update_post_meta( $order_id, '_booking_check_out', $check_out );
+        update_post_meta( $order_id, '_booking_nights', $nights );
+        update_post_meta( $order_id, '_booking_adults', $adults );
+        update_post_meta( $order_id, '_booking_children', $children );
+        update_post_meta( $order_id, '_booking_total_amount', $total_amount );
+        update_post_meta( $order_id, '_booking_source', 'online' );
+        update_post_meta( $order_id, '_booking_ota_pushed', 'no' );
+        update_post_meta( $order_id, '_booking_policy_agreed', 'yes' );
+
+        if ( ! empty( $guest['eta'] ) ) {
+            update_post_meta( $order_id, '_booking_guest_eta', sanitize_text_field( $guest['eta'] ) );
+        }
+        if ( ! empty( $guest['special_requests'] ) ) {
+            update_post_meta( $order_id, '_booking_special_requests', sanitize_textarea_field( $guest['special_requests'] ) );
+        }
+        if ( isset( $guest['consent'] ) ) {
+            update_post_meta( $order_id, '_booking_consent', ! empty( $guest['consent'] ) ? 'yes' : 'no' );
+        }
+    }
+
+    /**
+     * Transfer custom cart item booking metadata onto WooCommerce Order Line Item
+     *
+     * @param \WC_Order_Item_Product $item
+     * @param string                 $cart_item_key
+     * @param array                  $values
+     * @param \WC_Order              $order
+     */
+    public function save_line_item_booking_meta( $item, $cart_item_key, $values, $order ): void {
+        if ( ! empty( $values['booking_room_type'] ) ) {
+            $item->add_meta_data( __( 'Room Type', 'svago' ), $values['booking_room_type'], true );
+        }
+        if ( ! empty( $values['booking_check_in'] ) ) {
+            $item->add_meta_data( __( 'Check-in', 'svago' ), $values['booking_check_in'], true );
+        }
+        if ( ! empty( $values['booking_check_out'] ) ) {
+            $item->add_meta_data( __( 'Check-out', 'svago' ), $values['booking_check_out'], true );
+        }
+        if ( ! empty( $values['booking_nights'] ) ) {
+            $item->add_meta_data( __( 'Nights', 'svago' ), $values['booking_nights'], true );
+        }
+        if ( ! empty( $values['booking_adults'] ) ) {
+            $item->add_meta_data( __( 'Adults', 'svago' ), $values['booking_adults'], true );
+        }
+        if ( isset( $values['booking_children'] ) ) {
+            $item->add_meta_data( __( 'Children', 'svago' ), $values['booking_children'], true );
+        }
+    }
+
+    /**
+     * Skip WooCommerce Cart page entirely and redirect directly to Checkout or Booking flow (Requirement 3)
+     */
+    public function skip_cart_redirect_to_checkout(): void {
+        if ( is_admin() || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+            return;
+        }
+
+        if ( function_exists( 'is_cart' ) && is_cart() ) {
+            // If cart is empty, redirect back to booking page or homepage
+            if ( function_exists( 'WC' ) && WC()->cart && WC()->cart->is_empty() ) {
+                $booking_page = get_option( 'svago_booking_page_url', '' );
+                $redirect_url = ! empty( $booking_page ) ? $booking_page : home_url( '/' );
+                wp_safe_redirect( $redirect_url );
+                if ( ! defined( 'SVAGO_TESTING' ) ) {
+                    exit;
+                }
+                return;
+            }
+
+            // If cart has items, skip cart and redirect directly to checkout
+            $checkout_url = function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : home_url( '/checkout/' );
+            wp_safe_redirect( $checkout_url );
+            if ( ! defined( 'SVAGO_TESTING' ) ) {
+                exit;
+            }
+            return;
+        }
+    }
+
+    /**
+     * Force any WooCommerce add-to-cart redirect to go straight to Checkout (Requirement 3)
+     *
+     * @param string $url
+     * @return string
+     */
+    public function direct_checkout_redirect( $url ): string {
+        return function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : $url;
     }
 }
 
