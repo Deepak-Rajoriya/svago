@@ -1,0 +1,94 @@
+{
+  "RM001": [
+    {
+      "rate_id": "RT001",
+      "name": "Room Only",
+      "price_per_night": 70854,
+      "tax_included": true,
+      "description": "Room only, no meals included"
+    },
+    {
+      "rate_id": "RT002",
+      "name": "With Breakfast",
+      "price_per_night": 78000,
+      "tax_included": true,
+      "description": "Room with complimentary breakfast"
+    },
+    {
+      "rate_id": "RT003",
+      "name": "Half Board",
+      "price_per_night": 89500,
+      "tax_included": true,
+      "description": "Room with breakfast and dinner"
+    }
+  ],
+  "RM002": [
+    {
+      "rate_id": "RT010",
+      "name": "Room Only",
+      "price_per_night": 125000,
+      "tax_included": true,
+      "description": "Suite room only, no meals included"
+    },
+    {
+      "rate_id": "RT011",
+      "name": "With Breakfast",
+      "price_per_night": 135000,
+      "tax_included": true,
+      "description": "Suite with complimentary breakfast"
+    },
+    {
+      "rate_id": "RT012",
+      "name": "Full Board",
+      "price_per_night": 155000,
+      "tax_included": true,
+      "description": "Suite with all meals included"
+    }
+  ],
+  "RM003": [
+    {
+      "rate_id": "RT020",
+      "name": "Room Only",
+      "price_per_night": 92000,
+      "tax_included": true,
+      "description": "Family room only, no meals included"
+    },
+    {
+      "rate_id": "RT021",
+      "name": "With Breakfast",
+      "price_per_night": 102000,
+      "tax_included": true,
+      "description": "Family room with complimentary breakfast"
+    },
+    {
+      "rate_id": "RT022",
+      "name": "Half Board",
+      "price_per_night": 115000,
+      "tax_included": true,
+      "description": "Love room with romantic breakfast and candlelit dinner"
+    }
+  ],
+  "RM004": [
+    {
+      "rate_id": "RT030",
+      "name": "Room Only",
+      "price_per_night": 145000,
+      "tax_included": true,
+      "description": "Theatre room only, no meals included"
+    },
+    {
+      "rate_id": "RT031",
+      "name": "With Breakfast",
+      "price_per_night": 158000,
+      "tax_included": true,
+      "description": "Theatre room with complimentary breakfast"
+    },
+    {
+      "rate_id": "RT032",
+      "name": "Full Board",
+      "price_per_night": 180000,
+      "tax_included": true,
+      "description": "Theatre room with cinema dining experience"
+    }
+  ]
+}

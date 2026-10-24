@@ -1,0 +1,92 @@
+{
+  "rooms": [
+    {
+      "id": "RM001",
+      "name": "Jazz Room",
+      "description": "Inspired by rhythmic melodies and smooth brass, featuring warm acoustics, vintage jazz vinyl player, and elegant urban decor.",
+      "size": "380 sq ft",
+      "bed_type": "King size Bed",
+      "max_adults": 2,
+      "max_children": 1,
+      "amenities": [
+        "Private Balcony",
+        "King size Bed",
+        "Vinyl Record Player",
+        "Acoustic Soundproofing",
+        "Smart TV Unit",
+        "Mini Bar",
+        "Walk-In Wardrobe",
+        "Dressing area"
+      ],
+      "images": [
+        "/wp-content/uploads/rooms/jazz-1.jpg"
+      ]
+    },
+    {
+      "id": "RM002",
+      "name": "Literature Room",
+      "description": "A tranquil haven for book lovers, equipped with a curated private library, reading nook, plush armchairs, and calming garden views.",
+      "size": "420 sq ft",
+      "bed_type": "King size Bed",
+      "max_adults": 2,
+      "max_children": 1,
+      "amenities": [
+        "Private Library Wall",
+        "Reading Nook & Recliner",
+        "King size Bed",
+        "Writing Desk",
+        "Warm Ambient Lighting",
+        "Espresso Machine",
+        "Ensuite Bathtub",
+        "Walk-In Wardrobe"
+      ],
+      "images": [
+        "/wp-content/uploads/rooms/literature-1.jpg"
+      ]
+    },
+    {
+      "id": "RM003",
+      "name": "Love Room",
+      "description": "An intimate romantic retreat featuring mood ambient lighting, freestanding whirlpool bathtub, plush bedding, and panoramic sunset balcony.",
+      "size": "460 sq ft",
+      "bed_type": "King size Bed",
+      "max_adults": 2,
+      "max_children": 0,
+      "amenities": [
+        "Whirlpool / Jacuzzi Bathtub",
+        "Private Sunset Balcony",
+        "Mood Lighting System",
+        "King size Bed",
+        "Chilled Champagne Cooler",
+        "Plush Bathrobes",
+        "Rain Shower",
+        "Dressing Vanity"
+      ],
+      "images": [
+        "/wp-content/uploads/rooms/love-1.jpg"
+      ]
+    },
+    {
+      "id": "RM004",
+      "name": "Theatre Room",
+      "description": "The ultimate cinematic experience with an in-room 4K projector, Dolby Atmos surround sound, motorized blackout shades, and luxury recliner seating.",
+      "size": "520 sq ft",
+      "bed_type": "Two Double Beds",
+      "max_adults": 4,
+      "max_children": 2,
+      "amenities": [
+        "4K Laser Projector & Screen",
+        "Dolby Atmos Surround Sound",
+        "Motorized Blackout Blinds",
+        "Two Double Beds",
+        "Recliner Cinema Sofa",
+        "Popcorn & Snack Bar",
+        "Walk-In Wardrobe",
+        "Ensuite Shower"
+      ],
+      "images": [
+        "/wp-content/uploads/rooms/theatre-1.jpg"
+      ]
+    }
+  ]
+}

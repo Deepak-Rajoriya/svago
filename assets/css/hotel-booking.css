@@ -1,0 +1,1301 @@
+/**
+ * Hotel Booking Plugin Frontend Stylesheet
+ *
+ * @package SVAGO
+ */
+
+:root {
+    --svago-primary: #1e3a8a;
+    --svago-primary-hover: #1e40af;
+    --svago-accent: #d97706;
+    --svago-accent-hover: #b45309;
+    --svago-danger: #dc2626;
+    --svago-success: #16a34a;
+    --svago-gray-50: #f8fafc;
+    --svago-gray-100: #f1f5f9;
+    --svago-gray-200: #e2e8f0;
+    --svago-gray-300: #cbd5e1;
+    --svago-gray-600: #475569;
+    --svago-gray-800: #1e293b;
+    --svago-radius: 8px;
+    --svago-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --svago-transition: all 0.2s ease-in-out;
+}
+
+/* ==========================================================================
+   1. Search Widget Styles
+   ========================================================================== */
+.svago-search-widget-container {
+    background: #ffffff;
+    border-radius: var(--svago-radius);
+    box-shadow: var(--svago-shadow);
+    padding: 24px;
+    margin-bottom: 30px;
+    border: 1px solid var(--svago-gray-200);
+    font-family: inherit;
+}
+
+.svago-search-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.svago-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.svago-form-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--svago-gray-800);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.svago-input,
+.svago-select {
+    width: 100%;
+    height: 44px;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    border: 1px solid var(--svago-gray-300);
+    border-radius: var(--svago-radius);
+    background-color: #fff;
+    color: var(--svago-gray-800);
+    transition: var(--svago-transition);
+    box-sizing: border-box;
+}
+
+.svago-input:focus,
+.svago-select:focus {
+    border-color: var(--svago-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
+}
+
+.svago-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--svago-radius);
+    cursor: pointer;
+    transition: var(--svago-transition);
+    border: none;
+    text-decoration: none;
+}
+
+.svago-btn-primary {
+    background-color: var(--svago-primary);
+    color: #ffffff;
+}
+
+.svago-btn-primary:hover {
+    background-color: var(--svago-primary-hover);
+    color: #ffffff;
+}
+
+/* Spinner */
+.svago-spinner {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: svago-spin 0.8s linear infinite;
+    margin-left: 8px;
+}
+
+.svago-loading .svago-spinner {
+    display: inline-block;
+}
+
+.svago-loading .svago-btn-text {
+    opacity: 0.8;
+}
+
+@keyframes svago-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Child Ages Container */
+.svago-child-ages-wrapper {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--svago-gray-200);
+}
+
+.svago-child-ages-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--svago-gray-600);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.svago-child-ages-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.svago-child-age-item {
+    display: flex;
+    flex-direction: column;
+    min-width: 90px;
+}
+
+.svago-child-age-item label {
+    font-size: 0.75rem;
+    color: var(--svago-gray-600);
+    margin-bottom: 4px;
+}
+
+/* ==========================================================================
+   2. Banners & Notifications
+   ========================================================================== */
+.svago-best-rate-banner {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-left: 4px solid var(--svago-accent);
+    padding: 12px 16px;
+    border-radius: var(--svago-radius);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: #78350f;
+}
+
+.svago-fallback-notice {
+    background-color: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 12px 16px;
+    border-radius: var(--svago-radius);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: #1e40af;
+}
+
+/* Stay Summary Bar */
+.svago-results-summary-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    background-color: var(--svago-gray-50);
+    border-radius: var(--svago-radius);
+    border: 1px solid var(--svago-gray-200);
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+}
+
+.svago-summary-dates,
+.svago-summary-guests {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.svago-summary-label {
+    color: var(--svago-gray-600);
+}
+
+.svago-summary-value {
+    color: var(--svago-gray-800);
+    font-weight: 500;
+}
+
+.svago-modify-search-btn {
+    color: var(--svago-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.svago-modify-search-btn:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   3. Room Cards & Grid
+   ========================================================================== */
+.svago-rooms-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.svago-room-card {
+    background: #ffffff;
+    border-radius: var(--svago-radius);
+    box-shadow: var(--svago-shadow);
+    border: 1px solid var(--svago-gray-200);
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    overflow: hidden;
+    transition: var(--svago-transition);
+}
+
+.svago-room-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.09), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    border-color: var(--svago-gray-300);
+}
+
+/* Image Column */
+.svago-room-image-col {
+    position: relative;
+    background-color: var(--svago-gray-100);
+    display: flex;
+    flex-direction: column;
+}
+
+.svago-room-image-wrapper {
+    position: relative;
+    height: 240px;
+    overflow: hidden;
+}
+
+.svago-room-featured-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.svago-room-card:hover .svago-room-featured-img {
+    transform: scale(1.02);
+}
+
+.svago-room-thumbnails {
+    display: flex;
+    gap: 6px;
+    padding: 8px;
+    background-color: #ffffff;
+    border-top: 1px solid var(--svago-gray-200);
+}
+
+.svago-thumb-btn {
+    width: 50px;
+    height: 38px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    background: none;
+}
+
+.svago-thumb-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.svago-thumb-btn.active {
+    border-color: var(--svago-primary);
+}
+
+/* Badges */
+.svago-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 2;
+}
+
+.svago-badge-low-stock {
+    background-color: var(--svago-danger);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.4);
+    animation: svago-pulse 2s infinite;
+}
+
+@keyframes svago-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+}
+
+.svago-badge-sold-out {
+    background-color: var(--svago-gray-800);
+    color: #ffffff;
+}
+
+/* Content Column */
+.svago-room-content-col {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.svago-room-header {
+    margin-bottom: 12px;
+}
+
+.svago-room-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--svago-gray-800);
+    margin: 0 0 6px 0;
+}
+
+.svago-room-desc {
+    font-size: 0.875rem;
+    color: var(--svago-gray-600);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Specs */
+.svago-room-meta-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 10px 0;
+    border-top: 1px solid var(--svago-gray-100);
+    border-bottom: 1px solid var(--svago-gray-100);
+    margin-bottom: 14px;
+}
+
+.svago-spec-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--svago-gray-600);
+}
+
+/* Amenities */
+.svago-room-amenities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.svago-amenity-chip {
+    background-color: var(--svago-gray-100);
+    color: var(--svago-gray-800);
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.svago-amenity-more {
+    font-size: 0.8rem;
+    color: var(--svago-primary);
+    padding: 4px 6px;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   4. Rate Plans
+   ========================================================================== */
+.svago-room-rates-section {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--svago-gray-200);
+}
+
+.svago-rates-heading {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--svago-gray-800);
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.svago-rate-plans-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.svago-rate-plan-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border: 1px solid var(--svago-gray-200);
+    border-radius: var(--svago-radius);
+    background-color: var(--svago-gray-50);
+    transition: var(--svago-transition);
+}
+
+.svago-rate-plan-item:hover,
+.svago-rate-plan-item.svago-rate-selected {
+    border-color: var(--svago-primary);
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(30, 58, 138, 0.06);
+}
+
+.svago-rate-plan-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.svago-rate-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--svago-gray-800);
+}
+
+.svago-rate-desc {
+    font-size: 0.8rem;
+    color: var(--svago-gray-600);
+}
+
+.svago-tax-notice {
+    font-size: 0.75rem;
+    color: var(--svago-success);
+    font-weight: 600;
+}
+
+.svago-rate-pricing {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.svago-price-per-night {
+    text-align: right;
+}
+
+.svago-price-amount {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--svago-gray-800);
+}
+
+.svago-price-period {
+    font-size: 0.8rem;
+    color: var(--svago-gray-600);
+}
+
+.svago-price-total {
+    font-size: 0.8rem;
+    color: var(--svago-gray-600);
+    text-align: right;
+}
+
+.svago-btn-select-rate {
+    background-color: var(--svago-accent);
+    color: #ffffff;
+    height: 38px;
+    padding: 0 16px;
+    font-size: 0.875rem;
+}
+
+.svago-btn-select-rate:hover {
+    background-color: var(--svago-accent-hover);
+    color: #ffffff;
+}
+
+/* Sold Out Room State */
+.svago-room-sold-out {
+    opacity: 0.85;
+}
+
+.svago-room-sold-out .svago-room-featured-img {
+    filter: grayscale(80%);
+}
+
+.svago-sold-out-box {
+    padding: 14px;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--svago-radius);
+    text-align: center;
+}
+
+.svago-sold-out-msg {
+    margin: 0;
+    color: var(--svago-danger);
+    font-size: 0.875rem;
+}
+
+.svago-all-sold-out-banner {
+    padding: 24px;
+    background-color: #fef2f2;
+    border-radius: var(--svago-radius);
+    border: 1px solid #fecaca;
+    text-align: center;
+    color: #991b1b;
+}
+
+.svago-all-sold-out-banner h4 {
+    margin: 0 0 6px 0;
+    font-size: 1.15rem;
+}
+
+.svago-all-sold-out-banner p {
+    margin: 0;
+}
+
+/* ==========================================================================
+   5. Booking Flow & Stepper (Phase 3)
+   ========================================================================== */
+.svago-booking-wrapper {
+    max-width: 1100px;
+    margin: 0 auto 40px auto;
+    font-family: inherit;
+}
+
+/* Stepper */
+.svago-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    padding: 16px 24px;
+    background: #ffffff;
+    border-radius: var(--svago-radius);
+    border: 1px solid var(--svago-gray-200);
+    box-shadow: var(--svago-shadow);
+}
+
+.svago-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--svago-gray-600);
+}
+
+.svago-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--svago-gray-200);
+    color: var(--svago-gray-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.svago-step-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.svago-step-active {
+    color: var(--svago-primary);
+}
+
+.svago-step-active .svago-step-num {
+    background-color: var(--svago-primary);
+    color: #ffffff;
+}
+
+.svago-step-completed {
+    color: var(--svago-success);
+}
+
+.svago-step-completed .svago-step-num {
+    background-color: var(--svago-success);
+    color: #ffffff;
+}
+
+.svago-step-line {
+    flex: 1;
+    max-width: 60px;
+    height: 2px;
+    background-color: var(--svago-gray-200);
+    margin: 0 12px;
+}
+
+.svago-step-line-active {
+    background-color: var(--svago-success);
+}
+
+/* Two-column Booking Layout */
+.svago-booking-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 28px;
+    align-items: start;
+}
+
+.svago-card {
+    background: #ffffff;
+    border-radius: var(--svago-radius);
+    border: 1px solid var(--svago-gray-200);
+    box-shadow: var(--svago-shadow);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.svago-card-header {
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--svago-gray-200);
+}
+
+.svago-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--svago-gray-800);
+    margin: 0 0 4px 0;
+}
+
+.svago-card-subtitle {
+    font-size: 0.875rem;
+    color: var(--svago-gray-600);
+    margin: 0;
+}
+
+/* Form Styles */
+.svago-booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.svago-form-row {
+    display: grid;
+    gap: 16px;
+}
+
+.svago-row-2col {
+    grid-template-columns: 1fr 1fr;
+}
+
+.svago-required {
+    color: var(--svago-danger);
+    font-weight: 700;
+}
+
+.svago-phone-input-group {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 8px;
+}
+
+.svago-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    border: 1px solid var(--svago-gray-300);
+    border-radius: var(--svago-radius);
+    box-sizing: border-box;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.svago-textarea:focus {
+    border-color: var(--svago-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
+}
+
+.svago-field-error {
+    color: var(--svago-danger);
+    font-size: 0.8rem;
+    margin-top: 4px;
+    display: none;
+}
+
+/* Checkbox Groups */
+.svago-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: var(--svago-gray-800);
+    cursor: pointer;
+    line-height: 1.4;
+}
+
+.svago-checkbox-label input[type="checkbox"] {
+    margin-top: 3px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.svago-mandatory-agreement {
+    margin-top: 18px;
+    padding: 14px;
+    background-color: var(--svago-gray-50);
+    border: 1px solid var(--svago-gray-200);
+    border-radius: var(--svago-radius);
+}
+
+/* Button States */
+.svago-btn-disabled,
+.svago-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed !important;
+    background-color: var(--svago-gray-300) !important;
+    color: var(--svago-gray-600) !important;
+    border-color: var(--svago-gray-300) !important;
+}
+
+.svago-btn-secondary {
+    background-color: var(--svago-gray-100);
+    color: var(--svago-gray-800);
+    border: 1px solid var(--svago-gray-300);
+}
+
+.svago-btn-secondary:hover {
+    background-color: var(--svago-gray-200);
+}
+
+.svago-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--svago-gray-200);
+}
+
+/* Summary Sidebar */
+.svago-summary-heading {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--svago-gray-800);
+    margin: 0 0 16px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--svago-gray-200);
+}
+
+.svago-summary-room-img {
+    height: 160px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.svago-summary-room-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.svago-summary-room-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    color: var(--svago-gray-800);
+}
+
+.svago-summary-rate-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: var(--svago-gray-100);
+    color: var(--svago-primary);
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+}
+
+.svago-summary-dates-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--svago-gray-50);
+    padding: 12px;
+    border-radius: var(--svago-radius);
+    border: 1px solid var(--svago-gray-200);
+    margin-bottom: 14px;
+}
+
+.svago-summary-date-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.svago-summary-date-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--svago-gray-600);
+    font-weight: 600;
+}
+
+.svago-summary-date-val {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--svago-gray-800);
+}
+
+.svago-summary-date-time {
+    font-size: 0.75rem;
+    color: var(--svago-gray-600);
+}
+
+.svago-summary-arrow {
+    color: var(--svago-gray-400);
+    font-size: 1.2rem;
+}
+
+.svago-summary-meta-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    padding: 6px 0;
+    color: var(--svago-gray-800);
+}
+
+.svago-summary-pricing-table {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--svago-gray-200);
+}
+
+.svago-price-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    padding: 6px 0;
+    color: var(--svago-gray-800);
+}
+
+.svago-price-row-total {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--svago-gray-800);
+    padding-top: 10px;
+}
+
+.svago-total-price-val {
+    color: var(--svago-primary);
+}
+
+.svago-price-divider {
+    height: 1px;
+    background-color: var(--svago-gray-200);
+    margin: 8px 0;
+}
+
+.svago-included-tag {
+    color: var(--svago-success);
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.svago-tax-note {
+    font-size: 0.8rem;
+    color: var(--svago-success);
+    margin-top: 8px;
+}
+
+.svago-secure-notice {
+    margin-top: 14px;
+    padding: 8px;
+    background-color: var(--svago-gray-50);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--svago-gray-600);
+    text-align: center;
+}
+
+/* Review Page Specifics */
+.svago-review-room-box {
+    display: flex;
+    gap: 16px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--svago-gray-200);
+    margin-bottom: 18px;
+}
+
+.svago-review-room-thumb {
+    width: 120px;
+    height: 85px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.svago-review-room-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.svago-review-room-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: var(--svago-gray-800);
+}
+
+.svago-review-room-specs {
+    display: flex;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: var(--svago-gray-600);
+    margin-bottom: 6px;
+}
+
+.svago-review-rate-tag {
+    font-size: 0.85rem;
+    color: var(--svago-primary);
+}
+
+.svago-review-section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--svago-gray-800);
+    margin-bottom: 10px;
+}
+
+.svago-edit-link {
+    background: none;
+    border: none;
+    color: var(--svago-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.svago-guest-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    background-color: var(--svago-gray-50);
+    padding: 14px;
+    border-radius: var(--svago-radius);
+    border: 1px solid var(--svago-gray-200);
+}
+
+.svago-info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.svago-info-full {
+    grid-column: span 2;
+}
+
+.svago-info-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--svago-gray-600);
+}
+
+.svago-info-value {
+    font-size: 0.9rem;
+    color: var(--svago-gray-800);
+}
+
+/* Cancellation Policy List (Task 3.3) */
+.svago-policy-list {
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: var(--svago-gray-800);
+    line-height: 1.5;
+}
+
+/* Alert Boxes */
+.svago-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: var(--svago-radius);
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+}
+
+.svago-alert-danger {
+    background-color: #fef2f2;
+    border: 1px solid #f87171;
+    color: #991b1b;
+}
+
+.svago-alert-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.svago-alert-content {
+    flex: 1;
+}
+
+.svago-alert-title {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.svago-alert-msg {
+    margin: 0 0 10px 0;
+}
+
+/* ==========================================================================
+   6. Responsive Styles
+   ========================================================================== */
+@media (max-width: 860px) {
+    .svago-room-card {
+        grid-template-columns: 1fr;
+    }
+
+    .svago-room-image-wrapper {
+        height: 220px;
+    }
+
+    .svago-rate-plan-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .svago-rate-pricing {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .svago-booking-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .svago-row-2col,
+    .svago-guest-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .svago-info-full {
+        grid-column: span 1;
+    }
+
+    .svago-stepper {
+        padding: 12px 14px;
+    }
+
+    .svago-step-label {
+        display: none;
+    }
+}
+
+/* ==========================================================================
+   7. Confirmation Page Styles (Phase 4)
+   ========================================================================== */
+.svago-confirmation-hero {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 1px solid #bbf7d0;
+    border-radius: var(--svago-radius);
+    padding: 32px 24px;
+    text-align: center;
+    margin-bottom: 28px;
+    box-shadow: var(--svago-shadow);
+}
+
+.svago-hero-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: var(--svago-success);
+    color: #ffffff;
+    border-radius: 50%;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
+}
+
+.svago-hero-check {
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.svago-confirmation-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #14532d;
+    margin: 0 0 6px 0;
+}
+
+.svago-confirmation-subtitle {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #166534;
+    margin: 0 0 6px 0;
+}
+
+.svago-confirmation-email-notice {
+    font-size: 0.9rem;
+    color: #15803d;
+    margin: 0 0 20px 0;
+}
+
+.svago-reference-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+.svago-ref-badge {
+    background: #ffffff;
+    border: 1px solid #86efac;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.svago-ref-label {
+    color: var(--svago-gray-600);
+}
+
+.svago-ref-value {
+    color: var(--svago-gray-800);
+    font-weight: 700;
+}
+
+.svago-badge-paid .svago-ref-value {
+    color: var(--svago-success);
+}
+
+.svago-confirmation-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+    padding: 18px;
+    background: var(--svago-gray-50);
+    border-radius: var(--svago-radius-sm);
+    border: 1px solid var(--svago-gray-200);
+}
+
+.svago-grid-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.svago-grid-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    color: var(--svago-gray-600);
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.svago-grid-value {
+    font-size: 1.05rem;
+    color: var(--svago-gray-800);
+}
+
+.svago-grid-sub {
+    font-size: 0.8rem;
+    color: var(--svago-gray-500);
+}
+
+.svago-confirmation-section-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--svago-gray-800);
+    margin: 24px 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--svago-gray-200);
+}
+
+.svago-location-card {
+    border-left: 4px solid var(--svago-primary);
+}
+
+.svago-hotel-address {
+    font-size: 0.95rem;
+    color: var(--svago-gray-700);
+    line-height: 1.5;
+    margin: 0 0 14px 0;
+}
+
+.svago-map-btn {
+    margin-bottom: 16px;
+    text-decoration: none;
+    text-align: center;
+}
+
+.svago-contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.9rem;
+    border-top: 1px solid var(--svago-gray-200);
+    padding-top: 12px;
+}
+
+.svago-contact-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.svago-contact-row a {
+    color: var(--svago-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.svago-contact-row a:hover {
+    text-decoration: underline;
+}
+
+.svago-confirmation-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.svago-btn-block {
+    display: block;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+@media print {
+    .svago-confirmation-actions,
+    .svago-stepper,
+    .svago-map-btn {
+        display: none !important;
+    }
+
+    .svago-booking-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .svago-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+}
+
